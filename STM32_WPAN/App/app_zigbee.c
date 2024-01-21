@@ -323,7 +323,8 @@ static void APP_ZIGBEE_NwkForm(void)
 
     config.channelList.count = 1;
     config.channelList.list[0].page = 0;
-    config.channelList.list[0].channelMask = 1 << CHANNEL; /*Channel in use */
+    //config.channelList.list[0].channelMask = 1 << CHANNEL; /*Channel in use */
+    config.channelList.list[0].channelMask = WPAN_CHANNELMASK_2400MHZ; /*Channels 11-26 in use */
 
     /* Using ZbStartupWait (blocking) */
     status = ZbStartupWait(zigbee_app_info.zb, &config);
