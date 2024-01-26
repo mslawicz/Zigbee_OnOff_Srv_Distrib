@@ -166,17 +166,80 @@ static enum ZclStatusCodeT level_server_1_move_to_level(struct ZbZclClusterT *cl
 
 static enum ZclStatusCodeT level_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-	return ZCL_STATUS_SUCCESS;
+	  uint8_t attrVal;
+	  uint8_t endpoint;
+
+	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
+	  {
+	    return ZCL_STATUS_FAILURE;
+	  }
+
+	  endpoint = ZbZclClusterGetEndpoint(cluster);
+	  if (endpoint == SW1_ENDPOINT)
+	  {
+		  attrVal = req->mode;
+	    APP_DBG("LED_GREEN TOGGLE");
+	    BSP_LED_Toggle(LED_GREEN);
+	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+	  }
+	  else
+	  {
+	    /* Unknown endpoint */
+	    return ZCL_STATUS_FAILURE;
+	  }
+	  return ZCL_STATUS_SUCCESS;
 }
 
 static enum ZclStatusCodeT level_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-	return ZCL_STATUS_SUCCESS;
+	  uint8_t attrVal;
+	  uint8_t endpoint;
+
+	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
+	  {
+	    return ZCL_STATUS_FAILURE;
+	  }
+
+	  endpoint = ZbZclClusterGetEndpoint(cluster);
+	  if (endpoint == SW1_ENDPOINT)
+	  {
+		  attrVal = req->mode;
+	    APP_DBG("LED_GREEN TOGGLE");
+	    BSP_LED_Toggle(LED_GREEN);
+	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+	  }
+	  else
+	  {
+	    /* Unknown endpoint */
+	    return ZCL_STATUS_FAILURE;
+	  }
+	  return ZCL_STATUS_SUCCESS;
 }
 
 static enum ZclStatusCodeT level_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-	return ZCL_STATUS_SUCCESS;
+	  uint8_t attrVal;
+	  uint8_t endpoint;
+
+	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
+	  {
+	    return ZCL_STATUS_FAILURE;
+	  }
+
+	  endpoint = ZbZclClusterGetEndpoint(cluster);
+	  if (endpoint == SW1_ENDPOINT)
+	  {
+		  attrVal = req->mask;
+	    APP_DBG("LED_GREEN TOGGLE");
+	    BSP_LED_Toggle(LED_GREEN);
+	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+	  }
+	  else
+	  {
+	    /* Unknown endpoint */
+	    return ZCL_STATUS_FAILURE;
+	  }
+	  return ZCL_STATUS_SUCCESS;
 }
 
 /* USER CODE END PV */
@@ -337,7 +400,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   /* Endpoint: SW1_ENDPOINT */
   req.profileId = ZCL_PROFILE_HOME_AUTOMATION;
-  req.deviceId = ZCL_DEVICE_ONOFF_LIGHT; // XXX ZCL_DEVICE_ONOFF_SWITCH;
+  req.deviceId = ZCL_DEVICE_DIMMABLE_LIGHT; // XXX ZCL_DEVICE_ONOFF_SWITCH;
   req.endpoint = SW1_ENDPOINT;
   ZbZclAddEndpoint(zigbee_app_info.zb, &req, &conf);
   assert(conf.status == ZB_STATUS_SUCCESS);
