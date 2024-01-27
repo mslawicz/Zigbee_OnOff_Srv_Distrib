@@ -53,6 +53,7 @@
 
 /* USER CODE BEGIN PD */
 #define SW1_GROUP_ADDR                              0x0001
+#define ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT	5
 /* USER CODE END PD */
 
 /* Private macros ------------------------------------------------------------*/
@@ -152,6 +153,18 @@ static enum ZclStatusCodeT level_server_1_move_to_level(struct ZbZclClusterT *cl
 	APP_DBG("LED_GREEN TOGGLE");
 	BSP_LED_Toggle(LED_GREEN);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+	if(req->with_onoff)
+	{
+		//on/off action must be executed
+		if(attrVal <= 1)
+		{
+			onOff_server_1_off(zigbee_app_info.onOff_server_1, srcInfo, arg);
+		}
+		else
+		{
+			onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);
+		}
+	}
   }
   else
   {
@@ -363,6 +376,8 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 	}
   };
   ZbZclAttrAppendList( zigbee_app_info.level_server_1, attr_list, ZCL_ATTR_LIST_LEN(attr_list));
+
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.level_server_1, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT);
 
   /* USER CODE END CONFIG_ENDPOINT */
 }
