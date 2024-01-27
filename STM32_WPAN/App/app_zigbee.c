@@ -284,6 +284,19 @@ static void APP_ZIGBEE_StackLayersInit(void)
   zigbee_app_info.zb = ZbInit(0U, NULL, NULL);
   assert(zigbee_app_info.zb != NULL);
 
+  const struct ZbZclBasicServerDefaults defaults =
+  {
+		    .app_version = 1,
+			.stack_version = 10,
+		    .hw_version = 1,
+		    .mfr_name =  {6, 'M', 'a', 'r', 'c', 'i', 'n'},
+			.model_name = {12,'R','G','B',' ','L','E','D',' ','C','t','r','l'},
+		    .date_code = {8,'2','0','2','4','0','1','2','7'},
+		    .power_source = 0,
+		    .sw_build_id = {8,'v','1','.','0'}
+  };
+  ZbZclBasicServerConfigDefaults(zigbee_app_info.zb, &defaults);
+
   /* Create the endpoint and cluster(s) */
   APP_ZIGBEE_ConfigEndpoints();
 
