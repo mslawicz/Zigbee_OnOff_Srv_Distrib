@@ -106,7 +106,7 @@ struct zigbee_app_info
   bool init_after_join;
 
   struct ZbZclClusterT *onOff_server_1;
-  struct ZbZclClusterT* level_server_1;		// XXX level server added
+  struct ZbZclClusterT* level_server_1;		// MS level server added
 };
 static struct zigbee_app_info zigbee_app_info;
 
@@ -319,7 +319,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   /* Endpoint: SW1_ENDPOINT */
   req.profileId = ZCL_PROFILE_HOME_AUTOMATION;
-  req.deviceId = ZCL_DEVICE_DIMMABLE_LIGHT; // XXX ZCL_DEVICE_ONOFF_SWITCH;
+  req.deviceId = ZCL_DEVICE_DIMMABLE_LIGHT; // MS changed from ZCL_DEVICE_ONOFF_SWITCH;
   req.endpoint = SW1_ENDPOINT;
   ZbZclAddEndpoint(zigbee_app_info.zb, &req, &conf);
   assert(conf.status == ZB_STATUS_SUCCESS);
@@ -330,10 +330,27 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclClusterEndpointRegister(zigbee_app_info.onOff_server_1);
 
   /* USER CODE BEGIN CONFIG_ENDPOINT */
-  /* Level server */	/*XXX adding level server to endpoint*/
+  /* Level server */	/*MS adding level server to endpoint*/
   zigbee_app_info.level_server_1 = ZbZclLevelServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, &LevelServerCallbacks_1, NULL);
   assert(zigbee_app_info.level_server_1 != NULL);
   ZbZclClusterEndpointRegister(zigbee_app_info.level_server_1);
+  static const struct ZbZclAttrT attr_list[] =		/* MS add optional attributes of level cluster */
+  {
+	{
+	ZCL_LEVEL_ATTR_ONLEVEL, ZCL_DATATYPE_UNSIGNED_8BIT,
+	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME, ZCL_DATATYPE_UNSIGNED_16BIT,
+	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_LEVEL_ATTR_STARTUP_CURRLEVEL, ZCL_DATATYPE_UNSIGNED_8BIT,
+	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	}
+  };
+  ZbZclAttrAppendList( zigbee_app_info.level_server_1, attr_list, ZCL_ATTR_LIST_LEN(attr_list));
+
   /* USER CODE END CONFIG_ENDPOINT */
 }
 
