@@ -47,7 +47,7 @@
 
 /* Private defines -----------------------------------------------------------*/
 #define APP_ZIGBEE_STARTUP_FAIL_DELAY               500U
-#define CHANNEL                                     12
+#define CHANNEL                                     11
 
 #define SW1_ENDPOINT                                17
 
@@ -125,16 +125,13 @@ static struct ZbZclOnOffServerCallbacksT OnOffServerCallbacks_1 =
 /* USER CODE BEGIN PV */
 /* Level server 1 custom callbacks */
 static enum ZclStatusCodeT level_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-static enum ZclStatusCodeT level_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-static enum ZclStatusCodeT level_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-static enum ZclStatusCodeT level_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
 
 static struct ZbZclLevelServerCallbacksT LevelServerCallbacks_1 =
 {
 		.move_to_level = level_server_1_move_to_level,
-		.move = level_server_1_move,
-		.step = level_server_1_step,
-		.stop = level_server_1_stop
+		.move = NULL, //level_server_1_move,
+		.step = NULL, //level_server_1_step,
+		.stop = NULL //level_server_1_stop
 };
 
 /* Level server move_to_level command callback */
@@ -151,10 +148,10 @@ static enum ZclStatusCodeT level_server_1_move_to_level(struct ZbZclClusterT *cl
   endpoint = ZbZclClusterGetEndpoint(cluster);
   if (endpoint == SW1_ENDPOINT)
   {
-	  attrVal = req->level;
-    APP_DBG("LED_GREEN TOGGLE");
-    BSP_LED_Toggle(LED_GREEN);
-    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+	attrVal = req->level;
+	APP_DBG("LED_GREEN TOGGLE");
+	BSP_LED_Toggle(LED_GREEN);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
   }
   else
   {
@@ -162,84 +159,6 @@ static enum ZclStatusCodeT level_server_1_move_to_level(struct ZbZclClusterT *cl
     return ZCL_STATUS_FAILURE;
   }
   return ZCL_STATUS_SUCCESS;
-}
-
-static enum ZclStatusCodeT level_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-	  uint8_t attrVal;
-	  uint8_t endpoint;
-
-	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
-	  {
-	    return ZCL_STATUS_FAILURE;
-	  }
-
-	  endpoint = ZbZclClusterGetEndpoint(cluster);
-	  if (endpoint == SW1_ENDPOINT)
-	  {
-		  attrVal = req->mode;
-	    APP_DBG("LED_GREEN TOGGLE");
-	    BSP_LED_Toggle(LED_GREEN);
-	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
-	  }
-	  else
-	  {
-	    /* Unknown endpoint */
-	    return ZCL_STATUS_FAILURE;
-	  }
-	  return ZCL_STATUS_SUCCESS;
-}
-
-static enum ZclStatusCodeT level_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-	  uint8_t attrVal;
-	  uint8_t endpoint;
-
-	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
-	  {
-	    return ZCL_STATUS_FAILURE;
-	  }
-
-	  endpoint = ZbZclClusterGetEndpoint(cluster);
-	  if (endpoint == SW1_ENDPOINT)
-	  {
-		  attrVal = req->mode;
-	    APP_DBG("LED_GREEN TOGGLE");
-	    BSP_LED_Toggle(LED_GREEN);
-	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
-	  }
-	  else
-	  {
-	    /* Unknown endpoint */
-	    return ZCL_STATUS_FAILURE;
-	  }
-	  return ZCL_STATUS_SUCCESS;
-}
-
-static enum ZclStatusCodeT level_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-	  uint8_t attrVal;
-	  uint8_t endpoint;
-
-	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
-	  {
-	    return ZCL_STATUS_FAILURE;
-	  }
-
-	  endpoint = ZbZclClusterGetEndpoint(cluster);
-	  if (endpoint == SW1_ENDPOINT)
-	  {
-		  attrVal = req->mask;
-	    APP_DBG("LED_GREEN TOGGLE");
-	    BSP_LED_Toggle(LED_GREEN);
-	    (void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
-	  }
-	  else
-	  {
-	    /* Unknown endpoint */
-	    return ZCL_STATUS_FAILURE;
-	  }
-	  return ZCL_STATUS_SUCCESS;
 }
 
 /* USER CODE END PV */
@@ -448,8 +367,8 @@ static void APP_ZIGBEE_NwkForm(void)
 
     config.channelList.count = 1;
     config.channelList.list[0].page = 0;
-    //config.channelList.list[0].channelMask = 1 << CHANNEL; /*Channel in use */
-    config.channelList.list[0].channelMask = WPAN_CHANNELMASK_2400MHZ; /*Channels 11-26 in use */
+    config.channelList.list[0].channelMask = 1 << CHANNEL; /*Channel in use */
+   // config.channelList.list[0].channelMask = WPAN_CHANNELMASK_2400MHZ; /*Channels 11-26 in use */
 
     /* Using ZbStartupWait (blocking) */
     status = ZbStartupWait(zigbee_app_info.zb, &config);
