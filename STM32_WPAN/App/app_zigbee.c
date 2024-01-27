@@ -326,14 +326,7 @@ static void APP_ZIGBEE_StackLayersInit(void)
   zigbee_app_info.zb = ZbInit(0U, NULL, NULL);
   assert(zigbee_app_info.zb != NULL);
 
-  /* Create the endpoint and cluster(s) */
-  APP_ZIGBEE_ConfigEndpoints();
-
-  /* USER CODE BEGIN APP_ZIGBEE_StackLayersInit */
-  BSP_LED_Off(LED_RED);
-  BSP_LED_Off(LED_GREEN);
-  BSP_LED_Off(LED_BLUE);
-
+  /* USER CODE BEGIN BASIC SERVER DEFAULTS  */
   const struct ZbZclBasicServerDefaults basicServerDefaults =
   {
 		    .app_version = 1,
@@ -346,6 +339,15 @@ static void APP_ZIGBEE_StackLayersInit(void)
 		    .sw_build_id = {8,'v','1','.','0'}
   };
   ZbZclBasicServerConfigDefaults(zigbee_app_info.zb, &basicServerDefaults);
+  /* USER CODE END BASIC SERVER DEFAULTS */
+
+  /* Create the endpoint and cluster(s) */
+  APP_ZIGBEE_ConfigEndpoints();
+
+  /* USER CODE BEGIN APP_ZIGBEE_StackLayersInit */
+  BSP_LED_Off(LED_RED);
+  BSP_LED_Off(LED_GREEN);
+  BSP_LED_Off(LED_BLUE);
   /* USER CODE END APP_ZIGBEE_StackLayersInit */
 
   /* Configure the joining parameters */
@@ -455,7 +457,7 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
       /* USER CODE BEGIN 7 */
-
+      BSP_LED_On(LED_BLUE);
       /* USER CODE END 7 */
     }
     else
