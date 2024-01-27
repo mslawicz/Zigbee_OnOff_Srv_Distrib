@@ -40,6 +40,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 extern RTC_HandleTypeDef hrtc;
+
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -651,7 +652,6 @@ void DbgOutputTraces(uint8_t *p_data, uint16_t size, void (*cb)(void))
   return;
 }
 #endif /* CFG_DEBUG_TRACE != 0 */
-
 /* USER CODE BEGIN FD_WRAP_FUNCTIONS */
 /**
   * @brief This function manage the Push button action
