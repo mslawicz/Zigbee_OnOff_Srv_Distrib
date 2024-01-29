@@ -152,7 +152,7 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
   endpoint = ZbZclClusterGetEndpoint(cluster);
   if (endpoint == SW1_ENDPOINT) 
   {
-    APP_DBG("LED_RED OFF");
+    APP_DBG("onOff_server_1_off");
     BSP_LED_Off(LED_RED);
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
   }
@@ -174,7 +174,7 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
   endpoint = ZbZclClusterGetEndpoint(cluster);
   if (endpoint == SW1_ENDPOINT) 
   {
-    APP_DBG("LED_RED ON");
+    APP_DBG("onOff_server_1_on");
     BSP_LED_On(LED_RED);
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
   }
@@ -193,6 +193,7 @@ static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, 
   /* USER CODE BEGIN 2 OnOff server 1 toggle 1 */
   uint8_t attrVal;
 
+  APP_DBG("onOff_server_1_toggle");
   if (ZbZclAttrRead(cluster, ZCL_ONOFF_ATTR_ONOFF, NULL,
             &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS) 
   {
@@ -216,6 +217,7 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
   /* USER CODE BEGIN 3 LevelControl server 1 move_to_level 1 */
 	  uint8_t attrVal;
 	  uint8_t endpoint;
+	  uint8_t onOffVal;
 
 	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
 	  {
@@ -226,18 +228,24 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 	  if (endpoint == SW1_ENDPOINT)
 	  {
 		attrVal = req->level;
-		APP_DBG("LED_GREEN TOGGLE");
+		APP_DBG("levelControl_server_1_move_to_level");
 		BSP_LED_Toggle(LED_GREEN);
 		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
-		if(req->with_onoff)
+
+		enum ZclDataTypeT* typePtr = NULL;
+		enum ZclStatusCodeT* statusPtr = NULL;;
+		onOffVal = ZbZclAttrIntegerRead(zigbee_app_info.onOff_server_1, ZCL_ONOFF_ATTR_ONOFF, typePtr, statusPtr);
+		if((req->with_onoff) && (*statusPtr == ZCL_STATUS_SUCCESS))
 		{
 			//on/off action must be executed
-			if(attrVal <= 1)
+			if((attrVal <= 1) && (onOffVal != 0))
 			{
+				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_off ");
 				onOff_server_1_off(zigbee_app_info.onOff_server_1, srcInfo, arg);
 			}
-			else
+			if((attrVal > 1) && (onOffVal == 0))
 			{
+				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_on ");
 				onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);
 			}
 		}
@@ -255,6 +263,7 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 4 LevelControl server 1 move 1 */
+	APP_DBG("levelControl_server_1_move");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 4 LevelControl server 1 move 1 */
 }
@@ -263,6 +272,7 @@ static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 5 LevelControl server 1 step 1 */
+	APP_DBG("levelControl_server_1_step");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 5 LevelControl server 1 step 1 */
 }
@@ -271,6 +281,7 @@ static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 6 LevelControl server 1 stop 1 */
+	APP_DBG("levelControl_server_1_stop");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 6 LevelControl server 1 stop 1 */
 }
@@ -378,6 +389,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclClusterEndpointRegister(zigbee_app_info.levelControl_server_1);
 
   /* USER CODE BEGIN CONFIG_ENDPOINT */
+  APP_DBG("adding levelControl_server_1 attributes");
   static const struct ZbZclAttrT attr_list[] =		/* MS add optional attributes of level cluster */
   {
 	{
@@ -858,7 +870,8 @@ static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 	req.destAddr=0xFFFC;
 	req.tcSignificance = true;
 	req.duration = 0xFE;
-	if(ZbZdoPermitJoinReq(zigbee_app_info.zb,&req,NULL,NULL) == ZB_STATUS_SUCCESS)
+	enum ZbStatusCodeT status = ZbZdoPermitJoinReq(zigbee_app_info.zb,&req,NULL,NULL);
+	APP_DBG("ZbZdoPermitJoinReq call (status = 0x%02x)", status);
 
 	(void)ZbTimerReset(joinReqTimer, 60 * 1000);
 }
