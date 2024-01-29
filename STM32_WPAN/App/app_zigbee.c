@@ -83,7 +83,7 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4(void);
 
 /* USER CODE BEGIN PFP */
 static void APP_ZIGBEE_ConfigGroupAddr(void);
-static void APP_ZIGBEE_joinReq(struct ZigBeeT* zb, void* arg);
+static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -397,7 +397,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.levelControl_server_1, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT);
 
-  joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_joinReq, NULL);
+  joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
   ZbTimerReset(joinReqTimer, 5000);
 
   /* USER CODE END CONFIG_ENDPOINT */
@@ -849,8 +849,22 @@ static void APP_ZIGBEE_ConfigGroupAddr(void)
 
 }
 
-static void APP_ZIGBEE_joinReq(struct ZigBeeT* zb, void* arg)
+/* ZbZdoPermitJoinReq message has to be sent to allow permit join for an extra amount of time */
+static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 {
-	ZbTimerReset(joinReqTimer, 1000);
+	struct ZbZdoPermitJoinReqT req;
+	memset(&req, 0, sizeof(req));
+
+	req.destAddr=0xFFFC;
+	req.tcSignificance = true;
+	req.duration = 0xFE;
+	if(ZbZdoPermitJoinReq(zigbee_app_info.zb,&req,NULL,NULL) == ZB_STATUS_SUCCESS)
+	{
+		ZbTimerReset(joinReqTimer, 180 * 1000);
+	}
+	else
+	{
+		ZbTimerReset(joinReqTimer, 10* 1000);
+	}
 }
 /* USER CODE END FD_LOCAL_FUNCTIONS */
