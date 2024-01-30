@@ -228,7 +228,47 @@ static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, 
 static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 3 LevelControl server 1 move_to_level 1 */
-  return ZCL_STATUS_SUCCESS;
+	  uint8_t attrVal;
+	  uint8_t endpoint;
+	  uint8_t onOffVal;
+
+	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
+	  {
+	    return ZCL_STATUS_FAILURE;
+	  }
+
+	  endpoint = ZbZclClusterGetEndpoint(cluster);
+	  if (endpoint == SW1_ENDPOINT)
+	  {
+		attrVal = req->level;
+		APP_DBG("levelControl_server_1_move_to_level");
+		BSP_LED_Toggle(LED_GREEN);
+		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+
+		enum ZclDataTypeT* typePtr = NULL;
+		enum ZclStatusCodeT* statusPtr = NULL;;
+		onOffVal = ZbZclAttrIntegerRead(zigbee_app_info.onOff_server_1, ZCL_ONOFF_ATTR_ONOFF, typePtr, statusPtr);
+		if((req->with_onoff) && (*statusPtr == ZCL_STATUS_SUCCESS))
+		{
+			//on/off action must be executed
+			if((attrVal <= 1) && (onOffVal != 0))
+			{
+				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_off ");
+				onOff_server_1_off(zigbee_app_info.onOff_server_1, srcInfo, arg);
+			}
+			if((attrVal > 1) && (onOffVal == 0))
+			{
+				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_on ");
+				onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);
+			}
+		}
+	  }
+	  else
+	  {
+	    /* Unknown endpoint */
+	    return ZCL_STATUS_FAILURE;
+	  }
+	  return ZCL_STATUS_SUCCESS;
   /* USER CODE END 3 LevelControl server 1 move_to_level 1 */
 }
 
@@ -236,6 +276,7 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 4 LevelControl server 1 move 1 */
+	APP_DBG("levelControl_server_1_move");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 4 LevelControl server 1 move 1 */
 }
@@ -244,6 +285,7 @@ static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 5 LevelControl server 1 step 1 */
+	APP_DBG("levelControl_server_1_step");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 5 LevelControl server 1 step 1 */
 }
@@ -252,6 +294,7 @@ static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 6 LevelControl server 1 stop 1 */
+	APP_DBG("levelControl_server_1_stop");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 6 LevelControl server 1 stop 1 */
 }
@@ -260,6 +303,7 @@ static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
 {
   /* USER CODE BEGIN 7 Window server 1 up_command 1 */
+	APP_DBG("window_server_1_up_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 7 Window server 1 up_command 1 */
 }
@@ -268,6 +312,7 @@ static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
 {
   /* USER CODE BEGIN 8 Window server 1 down_command 1 */
+	APP_DBG("window_server_1_down_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 8 Window server 1 down_command 1 */
 }
@@ -448,9 +493,9 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.join_delay = 0U;
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
-      /* USER CODE BEGIN 9 */
-
-      /* USER CODE END 9 */
+      /* USER CODE BEGIN 7 */
+      BSP_LED_On(LED_BLUE);
+      /* USER CODE END 7 */
     }
     else
     {
