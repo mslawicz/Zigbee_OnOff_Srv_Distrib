@@ -36,8 +36,8 @@
 #include <assert.h>
 #include "zcl/zcl.h"
 #include "zcl/general/zcl.onoff.h"
-#include "zcl/general/zcl.color.h"
 #include "zcl/general/zcl.level.h"
+#include "zcl/general/zcl.window.h"
 
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -55,6 +55,7 @@
 /* USER CODE BEGIN PD */
 #define SW1_GROUP_ADDR                              0x0001
 #define ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT	5
+
 /* USER CODE END PD */
 
 /* Private macros ------------------------------------------------------------*/
@@ -109,8 +110,8 @@ struct zigbee_app_info
   bool init_after_join;
 
   struct ZbZclClusterT *onOff_server_1;
-  struct ZbZclClusterT *colorControl_server_1;
   struct ZbZclClusterT *levelControl_server_1;
+  struct ZbZclClusterT *window_server_1;
 };
 static struct zigbee_app_info zigbee_app_info;
 
@@ -126,18 +127,6 @@ static struct ZbZclOnOffServerCallbacksT OnOffServerCallbacks_1 =
   .toggle = onOff_server_1_toggle,
 };
 
-/* ColorControl server 1 custom callbacks */
-static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-static enum ZclStatusCodeT colorControl_server_1_move_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-static enum ZclStatusCodeT colorControl_server_1_step_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientStepColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
-
-static struct ZbZclColorServerCallbacksT ColorServerCallbacks_1 =
-{
-  .move_to_color_xy = colorControl_server_1_move_to_color_xy,
-  .move_color_xy = colorControl_server_1_move_color_xy,
-  .step_color_xy = colorControl_server_1_step_color_xy,
-};
-
 /* LevelControl server 1 custom callbacks */
 static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
 static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg);
@@ -150,6 +139,16 @@ static struct ZbZclLevelServerCallbacksT LevelServerCallbacks_1 =
   .move = levelControl_server_1_move,
   .step = levelControl_server_1_step,
   .stop = levelControl_server_1_stop,
+};
+
+/* Window server 1 custom callbacks */
+static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg);
+static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg);
+
+static struct ZbZclWindowServerCallbacksT WindowServerCallbacks_1 =
+{
+  .up_command = window_server_1_up_command,
+  .down_command = window_server_1_down_command,
 };
 
 /* USER CODE BEGIN PV */
@@ -225,60 +224,52 @@ static enum ZclStatusCodeT onOff_server_1_toggle(struct ZbZclClusterT *cluster, 
   /* USER CODE END 2 OnOff server 1 toggle 1 */
 }
 
-/* ColorControl server move_to_color_xy 1 command callback */
-static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-  /* USER CODE BEGIN 3 ColorControl server 1 move_to_color_xy 1 */
-  return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 3 ColorControl server 1 move_to_color_xy 1 */
-}
-
-/* ColorControl server move_color_xy 1 command callback */
-static enum ZclStatusCodeT colorControl_server_1_move_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-  /* USER CODE BEGIN 4 ColorControl server 1 move_color_xy 1 */
-  return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 4 ColorControl server 1 move_color_xy 1 */
-}
-
-/* ColorControl server step_color_xy 1 command callback */
-static enum ZclStatusCodeT colorControl_server_1_step_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientStepColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
-{
-  /* USER CODE BEGIN 5 ColorControl server 1 step_color_xy 1 */
-  return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 5 ColorControl server 1 step_color_xy 1 */
-}
-
 /* LevelControl server move_to_level 1 command callback */
 static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveToLevelReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-  /* USER CODE BEGIN 6 LevelControl server 1 move_to_level 1 */
+  /* USER CODE BEGIN 3 LevelControl server 1 move_to_level 1 */
   return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 6 LevelControl server 1 move_to_level 1 */
+  /* USER CODE END 3 LevelControl server 1 move_to_level 1 */
 }
 
 /* LevelControl server move 1 command callback */
 static enum ZclStatusCodeT levelControl_server_1_move(struct ZbZclClusterT *cluster, struct ZbZclLevelClientMoveReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-  /* USER CODE BEGIN 7 LevelControl server 1 move 1 */
+  /* USER CODE BEGIN 4 LevelControl server 1 move 1 */
   return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 7 LevelControl server 1 move 1 */
+  /* USER CODE END 4 LevelControl server 1 move 1 */
 }
 
 /* LevelControl server step 1 command callback */
 static enum ZclStatusCodeT levelControl_server_1_step(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStepReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-  /* USER CODE BEGIN 8 LevelControl server 1 step 1 */
+  /* USER CODE BEGIN 5 LevelControl server 1 step 1 */
   return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 8 LevelControl server 1 step 1 */
+  /* USER CODE END 5 LevelControl server 1 step 1 */
 }
 
 /* LevelControl server stop 1 command callback */
 static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *cluster, struct ZbZclLevelClientStopReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
-  /* USER CODE BEGIN 9 LevelControl server 1 stop 1 */
+  /* USER CODE BEGIN 6 LevelControl server 1 stop 1 */
   return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 9 LevelControl server 1 stop 1 */
+  /* USER CODE END 6 LevelControl server 1 stop 1 */
+}
+
+/* Window server up_command 1 command callback */
+static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
+{
+  /* USER CODE BEGIN 7 Window server 1 up_command 1 */
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 7 Window server 1 up_command 1 */
+}
+
+/* Window server down_command 1 command callback */
+static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
+{
+  /* USER CODE BEGIN 8 Window server 1 down_command 1 */
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 8 Window server 1 down_command 1 */
 }
 
 /**
@@ -369,7 +360,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   /* Endpoint: SW1_ENDPOINT */
   req.profileId = ZCL_PROFILE_HOME_AUTOMATION;
-  req.deviceId = ZCL_DEVICE_COLOR_DIMMABLE_LIGHT;
+  req.deviceId = ZCL_DEVICE_DIMMABLE_LIGHT;
   req.endpoint = SW1_ENDPOINT;
   ZbZclAddEndpoint(zigbee_app_info.zb, &req, &conf);
   assert(conf.status == ZB_STATUS_SUCCESS);
@@ -378,28 +369,19 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   zigbee_app_info.onOff_server_1 = ZbZclOnOffServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, &OnOffServerCallbacks_1, NULL);
   assert(zigbee_app_info.onOff_server_1 != NULL);
   ZbZclClusterEndpointRegister(zigbee_app_info.onOff_server_1);
-  /* ColorControl server */
-  struct ZbColorClusterConfig colorServerConfig_1 = {
-    .callbacks = ColorServerCallbacks_1,
-    /* Please complete the other attributes according to your application:
-     *          .capabilities           //uint8_t (e.g. ZCL_COLOR_CAP_HS)
-     *          .enhanced_supported     //bool
-     */
-    /* USER CODE BEGIN Color Server Config (endpoint1) */
-	.capabilities = ZCL_COLOR_CAP_XY
-    /* USER CODE END Color Server Config (endpoint1) */
-  };
-  zigbee_app_info.colorControl_server_1 = ZbZclColorServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, NULL, 0, &colorServerConfig_1, NULL);
-  assert(zigbee_app_info.colorControl_server_1 != NULL);
-  ZbZclClusterEndpointRegister(zigbee_app_info.colorControl_server_1);
   /* LevelControl server */
   zigbee_app_info.levelControl_server_1 = ZbZclLevelServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, &LevelServerCallbacks_1, NULL);
   assert(zigbee_app_info.levelControl_server_1 != NULL);
   ZbZclClusterEndpointRegister(zigbee_app_info.levelControl_server_1);
+  /* Window server */
+  zigbee_app_info.window_server_1 = ZbZclWindowServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, &WindowServerCallbacks_1, NULL);
+  assert(zigbee_app_info.window_server_1 != NULL);
+  ZbZclClusterEndpointRegister(zigbee_app_info.window_server_1);
 
   /* USER CODE BEGIN CONFIG_ENDPOINT */
-  APP_DBG("adding levelControl_server_1 attributes");
-  static const struct ZbZclAttrT attr_list[] =		/* MS add optional attributes of level cluster */
+  APP_DBG("adding cluster attributes");
+
+  static const struct ZbZclAttrT levelControl_attr_list[] =		/* MS add optional attributes of level control cluster */
   {
 	{
 	ZCL_LEVEL_ATTR_ONLEVEL, ZCL_DATATYPE_UNSIGNED_8BIT,
@@ -414,8 +396,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	}
   };
-  ZbZclAttrAppendList( zigbee_app_info.levelControl_server_1, attr_list, ZCL_ATTR_LIST_LEN(attr_list));
-
+  ZbZclAttrAppendList( zigbee_app_info.levelControl_server_1, levelControl_attr_list, ZCL_ATTR_LIST_LEN(levelControl_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.levelControl_server_1, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT);
 
   joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
@@ -467,18 +448,18 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.join_delay = 0U;
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
-      /* USER CODE BEGIN 10 */
+      /* USER CODE BEGIN 9 */
 
-      /* USER CODE END 10 */
+      /* USER CODE END 9 */
     }
     else
     {
       zigbee_app_info.startupControl = ZbStartTypeForm;
       APP_DBG("Startup failed, attempting again after a short delay (%d ms)", APP_ZIGBEE_STARTUP_FAIL_DELAY);
       zigbee_app_info.join_delay = HAL_GetTick() + APP_ZIGBEE_STARTUP_FAIL_DELAY;
-      /* USER CODE BEGIN 11 */
+      /* USER CODE BEGIN 10 */
 
-      /* USER CODE END 11 */
+      /* USER CODE END 10 */
     }
   }
 
@@ -661,8 +642,8 @@ static void APP_ZIGBEE_CheckWirelessFirmwareInfo(void)
     /* print clusters allocated */
     APP_DBG("Clusters allocated are:");
     APP_DBG("onOff Server on Endpoint %d", SW1_ENDPOINT);
-    APP_DBG("colorControl Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("levelControl Server on Endpoint %d", SW1_ENDPOINT);
+    APP_DBG("window Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("**********************************************************");
   }
 }
