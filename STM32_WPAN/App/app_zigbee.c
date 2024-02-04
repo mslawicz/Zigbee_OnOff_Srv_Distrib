@@ -364,7 +364,6 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 	  {
 		attrVal = req->level;
 		APP_DBG("levelControl_server_1_move_to_level");
-		BSP_LED_Toggle(LED_GREEN);
 		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
 
 		enum ZclDataTypeT* typePtr = NULL;
@@ -426,6 +425,7 @@ static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *clus
 {
   /* USER CODE BEGIN 17 Window server 1 up_command 1 */
 	APP_DBG("window_server_1_up_command");
+	BSP_LED_Toggle(LED_GREEN);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 17 Window server 1 up_command 1 */
 }
@@ -435,6 +435,7 @@ static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cl
 {
   /* USER CODE BEGIN 18 Window server 1 down_command 1 */
 	APP_DBG("window_server_1_down_command");
+	BSP_LED_Toggle(LED_GREEN);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 18 Window server 1 down_command 1 */
 }
