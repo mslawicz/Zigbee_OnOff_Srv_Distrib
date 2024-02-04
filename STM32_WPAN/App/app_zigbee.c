@@ -425,6 +425,7 @@ static enum ZclStatusCodeT levelControl_server_1_stop(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
 {
   /* USER CODE BEGIN 17 Window server 1 up_command 1 */
+	APP_DBG("window_server_1_up_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 17 Window server 1 up_command 1 */
 }
@@ -433,6 +434,7 @@ static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *clus
 static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
 {
   /* USER CODE BEGIN 18 Window server 1 down_command 1 */
+	APP_DBG("window_server_1_down_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 18 Window server 1 down_command 1 */
 }
@@ -441,6 +443,7 @@ static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cl
 static enum ZclStatusCodeT window_server_1_set_lift_and_tilt_command(struct ZbZclClusterT *cluster, void *arg, uint8_t liftPercentage, uint8_t tiltPercentage)
 {
   /* USER CODE BEGIN 19 Window server 1 set_lift_and_tilt_command 1 */
+	APP_DBG("window_server_1_set_lift_and_tilt_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 19 Window server 1 set_lift_and_tilt_command 1 */
 }
@@ -449,6 +452,7 @@ static enum ZclStatusCodeT window_server_1_set_lift_and_tilt_command(struct ZbZc
 static enum ZclStatusCodeT window_server_1_stop_command(struct ZbZclClusterT *cluster, struct ZbZclHeaderT *zclHdrPtr, struct ZbApsdeDataIndT *dataIndPtr, void *arg)
 {
   /* USER CODE BEGIN 20 Window server 1 stop_command 1 */
+	APP_DBG("window_server_1_stop_command");
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 20 Window server 1 stop_command 1 */
 }
@@ -625,12 +629,28 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 	{
 			ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, ZCL_DATATYPE_UNSIGNED_8BIT,
 			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_INSTALLED_OPENED_LIMIT_LIFT, ZCL_DATATYPE_UNSIGNED_16BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_INSTALLED_CLOSED_LIMIT_LIFT, ZCL_DATATYPE_UNSIGNED_16BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_MODE, ZCL_DATATYPE_BITMAP_8BIT,
+			ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	}
   };
   ZbZclAttrAppendList( zigbee_app_info.window_server_1, windowCovering_attr_list, ZCL_ATTR_LIST_LEN(windowCovering_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_COVERING_TYPE, ZCL_WNCV_TYPE_ROLLERSHADE);
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CONFIG_STATUS, ZCL_WNCV_STATUS_OPERATIONAL | ZCL_WNCV_STATUS_ONLINE | ZCL_WNCV_STATUS_LIFT_CLOSED_LOOP |ZCL_WNCV_STATUS_LIFT_ENCODER);
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, 0x32);
+
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_INSTALLED_OPENED_LIMIT_LIFT, 0x0000);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_INSTALLED_CLOSED_LIMIT_LIFT, 0xFFFF);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_MODE, 0);
 
   joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
   ZbTimerReset(joinReqTimer, 10 *1000);
