@@ -558,6 +558,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
      *          .enhanced_supported     //bool
      */
     /* USER CODE BEGIN Color Server Config (endpoint1) */
+	.capabilities = ZCL_COLOR_CAP_XY
     /* USER CODE END Color Server Config (endpoint1) */
   };
   zigbee_app_info.colorControl_server_1 = ZbZclColorServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, NULL, 0, &colorServerConfig_1, NULL);
@@ -611,6 +612,26 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclAttrAppendList( zigbee_app_info.levelControl_server_1, levelControl_attr_list, ZCL_ATTR_LIST_LEN(levelControl_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.levelControl_server_1, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME, ZCL_LEVEL_ATTR_ONOFF_TRANS_TIME_DEFAULT);
 
+  static const struct ZbZclAttrT windowCovering_attr_list[] =		/* MS add optional attributes of window covering cluster */
+  {
+	{
+			ZCL_WNCV_SVR_ATTR_COVERING_TYPE, ZCL_DATATYPE_ENUMERATION_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_CONFIG_STATUS, ZCL_DATATYPE_BITMAP_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, ZCL_DATATYPE_UNSIGNED_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	}
+  };
+  ZbZclAttrAppendList( zigbee_app_info.window_server_1, windowCovering_attr_list, ZCL_ATTR_LIST_LEN(windowCovering_attr_list));
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_COVERING_TYPE, ZCL_WNCV_TYPE_ROLLERSHADE);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CONFIG_STATUS, ZCL_WNCV_STATUS_OPERATIONAL | ZCL_WNCV_STATUS_ONLINE | ZCL_WNCV_STATUS_LIFT_CLOSED_LOOP |ZCL_WNCV_STATUS_LIFT_ENCODER);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, 0x32);
+
   joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
   ZbTimerReset(joinReqTimer, 10 *1000);
 
@@ -661,7 +682,7 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
       /* USER CODE BEGIN 21 */
-
+      BSP_LED_On(LED_BLUE);
       /* USER CODE END 21 */
     }
     else
