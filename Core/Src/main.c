@@ -130,12 +130,20 @@ int main(void)
   {
     /* USER CODE END WHILE */
     MX_APPE_Process();
+
     /* USER CODE BEGIN 3 */
     static uint8_t cnt = 0;
+    static uint8_t busy = 0;
+    if(busy != 0)
+    {
+    	HAL_TIM_PWM_Stop_DMA(&htim16, TIM_CHANNEL_1);
+    	busy = 0;
+    }
     if(++cnt == 100)
     {
     	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, buf, 8);
     	cnt = 0;
+    	busy = 1;
     }
   }
   /* USER CODE END 3 */
@@ -453,7 +461,7 @@ static void MX_TIM16_Init(void)
   sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.BreakFilter = 0;
-  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_ENABLE;
   if (HAL_TIMEx_ConfigBreakDeadTime(&htim16, &sBreakDeadTimeConfig) != HAL_OK)
   {
     Error_Handler();

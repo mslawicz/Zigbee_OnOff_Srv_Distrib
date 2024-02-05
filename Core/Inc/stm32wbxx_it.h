@@ -61,7 +61,6 @@ void FLASH_IRQHandler(void);
 void RCC_IRQHandler(void);
 void DMA1_Channel1_IRQHandler(void);
 void DMA1_Channel2_IRQHandler(void);
-void DMA1_Channel3_IRQHandler(void);
 void C2SEV_PWR_C2H_IRQHandler(void);
 void USART1_IRQHandler(void);
 void LPUART1_IRQHandler(void);
@@ -70,6 +69,7 @@ void IPCC_C1_RX_IRQHandler(void);
 void IPCC_C1_TX_IRQHandler(void);
 void HSEM_IRQHandler(void);
 void FPU_IRQHandler(void);
+void DMA2_Channel3_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 void EXTI0_IRQHandler(void);
 void EXTI1_IRQHandler(void);
