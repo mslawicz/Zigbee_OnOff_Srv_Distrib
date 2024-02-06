@@ -53,7 +53,13 @@ TIM_HandleTypeDef htim16;
 DMA_HandleTypeDef hdma_tim16_ch1;
 
 /* USER CODE BEGIN PV */
-uint16_t RGB_buf[] = { 0x02, 0x18, 0x04, 0x15, 0x06, 0x13, 0x08, 0x10, 0x00 };
+uint16_t RGB_buf[] =
+{
+		13, 27, 27, 13, 13, 27, 13, 13,	// bits: 01100100
+		13, 13, 27, 13, 13, 27, 13, 27,	// bits: 00100101
+		13, 13, 13, 13, 13, 27, 27, 27,	// bits: 00000111
+		0
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -133,7 +139,7 @@ int main(void)
     static uint8_t cnt = 0;
     if(++cnt == 100)
     {
-    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)RGB_buf, 9);
+    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)RGB_buf, 25);
     	cnt = 0;
     }
   }
@@ -435,7 +441,7 @@ static void MX_TIM16_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 15;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -445,7 +451,6 @@ static void MX_TIM16_Init(void)
   {
     Error_Handler();
   }
-  __HAL_TIM_DISABLE_OCxPRELOAD(&htim16, TIM_CHANNEL_1);
   sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
   sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
   sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
