@@ -519,7 +519,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
-	HAL_TIM_PWM_Stop_DMA(&htim16, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop_DMA(htim, TIM_CHANNEL_1);
 }
 /* USER CODE END 4 */
 
