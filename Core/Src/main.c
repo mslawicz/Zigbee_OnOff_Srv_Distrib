@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "stm32wbxx_hal_tim.h"
+#include "app_RGB_LED.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -132,6 +132,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  set_RGB_bits(0, 0x20, 0x07, 0x7F);	//XXX test
+  set_RGB_bits(1, 0x38, 0x01, 0x55);	//XXX test
 
   while (1)
   {
