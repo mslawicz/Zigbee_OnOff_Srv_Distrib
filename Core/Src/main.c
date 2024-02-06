@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32wbxx_hal_tim.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,7 +53,7 @@ TIM_HandleTypeDef htim16;
 DMA_HandleTypeDef hdma_tim16_ch1;
 
 /* USER CODE BEGIN PV */
-
+uint16_t RGB_buf[] = { 0x02, 0x18, 0x04, 0x15, 0x06, 0x13, 0x08, 0x10, 0x00 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -123,8 +123,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t buf[] = { 0x02, 0x18, 0x04, 0x15, 0x06, 0x13, 0x08, 0x10, 0x00 };
-  //HAL_TIM_PWM_Start(&htim16, TIM_CHANNEL_1);
 
   while (1)
   {
@@ -135,7 +133,7 @@ int main(void)
     static uint8_t cnt = 0;
     if(++cnt == 100)
     {
-    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)buf, 9);
+    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)RGB_buf, 9);
     	cnt = 0;
     }
   }
@@ -424,10 +422,10 @@ static void MX_TIM16_Init(void)
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 0;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 20-1;
+  htim16.Init.Period = 40-1;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
-  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
   {
     Error_Handler();
@@ -511,7 +509,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+{
+	HAL_TIM_PWM_Stop_DMA(&htim16, TIM_CHANNEL_1);
+}
 /* USER CODE END 4 */
 
 /**
