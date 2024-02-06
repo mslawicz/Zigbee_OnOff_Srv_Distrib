@@ -58,6 +58,9 @@ uint16_t RGB_buf[] =
 		13, 27, 27, 13, 13, 27, 13, 13,	// bits: 01100100
 		13, 13, 27, 13, 13, 27, 13, 27,	// bits: 00100101
 		13, 13, 13, 13, 13, 27, 27, 27,	// bits: 00000111
+		13, 13, 27, 13, 13, 27, 13, 13,	// bits: 00100100
+		13, 13, 27, 13, 13, 27, 27, 27,	// bits: 00100111
+		13, 13, 13, 13, 27, 27, 27, 27,	// bits: 00001111
 		0
 };
 /* USER CODE END PV */
@@ -139,7 +142,7 @@ int main(void)
     static uint8_t cnt = 0;
     if(++cnt == 100)
     {
-    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)RGB_buf, 25);
+    	HAL_TIM_PWM_Start_DMA(&htim16, TIM_CHANNEL_1, (uint32_t*)RGB_buf, sizeof(RGB_buf) / sizeof(RGB_buf[0]));
     	cnt = 0;
     }
   }
