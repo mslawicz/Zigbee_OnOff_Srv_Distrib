@@ -81,7 +81,8 @@ static void MX_RF_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	RGB_LED_htim = &htim16;
+	RGB_LED_Channel = TIM_CHANNEL_1;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -124,21 +125,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  set_RGB_bits(0, 0x20, 0x07, 0x7F);	//XXX test
-  set_RGB_bits(1, 0x38, 0x01, 0x55);	//XXX test
-
   while (1)
   {
     /* USER CODE END WHILE */
     MX_APPE_Process();
 
     /* USER CODE BEGIN 3 */
-    static uint8_t cnt = 0;
-    if(++cnt == 100)
-    {
-    	send_RGB_data(&htim16, TIM_CHANNEL_1);	//XXX test
-    	cnt = 0;
-    }
   }
   /* USER CODE END 3 */
 }

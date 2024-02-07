@@ -41,6 +41,7 @@
 #include "zcl/general/zcl.window.h"
 
 /* USER CODE BEGIN Includes */
+#include "app_RGB_LED.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -324,7 +325,15 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
 {
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
 	APP_DBG("colorControl_server_1_move_to_color_xy");
-  return ZCL_STATUS_SUCCESS;
+
+	uint16_t LED_idx;
+	for(LED_idx = 0; LED_idx < NO_OF_LEDS; LED_idx++)
+	{
+		set_RGB_bits(LED_idx, 0x20, 0x07, 0x7F);
+	}
+
+	HAL_StatusTypeDef status = send_RGB_data(RGB_LED_htim, RGB_LED_Channel);
+  return (status == HAL_OK) ? ZCL_STATUS_SUCCESS : ZCL_STATUS_FAILURE;
   /* USER CODE END 10 ColorControl server 1 move_to_color_xy 1 */
 }
 

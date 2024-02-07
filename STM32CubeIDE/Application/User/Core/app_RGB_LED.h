@@ -5,8 +5,8 @@
  *      Author: marci
  */
 
-#ifndef APPLICATION_USER_CORE_APP_RGB_LED_H_
-#define APPLICATION_USER_CORE_APP_RGB_LED_H_
+#ifndef APP_RGB_LED_H_
+#define APP_RGB_LED_H_
 
 #include "stm32wbxx_hal.h"
 
@@ -16,7 +16,10 @@
 #define BIT_1_DUTY	27
 #define BIT_0_DUTY	13
 
-void set_RGB_bits(uint16_t LED, uint8_t R, uint8_t G, uint8_t B);
-HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+extern TIM_HandleTypeDef* RGB_LED_htim;
+extern uint32_t RGB_LED_Channel;
 
-#endif /* APPLICATION_USER_CORE_APP_RGB_LED_H_ */
+extern void set_RGB_bits(uint16_t LED, uint8_t R, uint8_t G, uint8_t B);
+extern HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+
+#endif /* APP_RGB_LED_H_ */

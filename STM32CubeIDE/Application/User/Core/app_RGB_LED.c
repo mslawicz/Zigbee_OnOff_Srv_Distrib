@@ -8,6 +8,8 @@
 #include "app_RGB_LED.h"
 #include <assert.h>
 
+TIM_HandleTypeDef* RGB_LED_htim = NULL;
+uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
 
 
