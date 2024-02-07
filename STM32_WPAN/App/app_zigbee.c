@@ -324,7 +324,7 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_hue_sat(struct ZbZclClu
 static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorXYReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
-	APP_DBG("colorControl_server_1_move_to_color_xy");
+	APP_DBG("colorControl_server_1_move_to_color_xy (x=%d y=%d)", req->color_x, req->color_y);
 
 	uint16_t LED_idx;
 	for(LED_idx = 0; LED_idx < NO_OF_LEDS; LED_idx++)
