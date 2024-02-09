@@ -88,6 +88,7 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4(void);
 /* USER CODE BEGIN PFP */
 static void APP_ZIGBEE_ConfigGroupAddr(void);
 static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg);
+static void APP_ZIGBEE_RGB_main(struct ZigBeeT* zb, void* arg);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -185,7 +186,8 @@ static struct ZbZclWindowServerCallbacksT WindowServerCallbacks_1 =
 };
 
 /* USER CODE BEGIN PV */
-struct ZbTimerT* joinReqTimer;
+struct ZbTimerT* joinReqTimer;	//timer for sending join requests
+struct ZbTimerT* appTimer;	//timer for RGB application loop
 /* USER CODE END PV */
 /* Functions Definition ------------------------------------------------------*/
 
@@ -669,6 +671,9 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
   ZbTimerReset(joinReqTimer, 10 *1000);
 
+  appTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_RGB_main, NULL);
+  ZbTimerReset(appTimer, 1000);	//XXX test
+
   /* USER CODE END CONFIG_ENDPOINT */
 }
 
@@ -1129,9 +1134,17 @@ static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 	req.destAddr=0xFFFC;
 	req.tcSignificance = true;
 	req.duration = 0xFE;
-	enum ZbStatusCodeT status = ZbZdoPermitJoinReq(zigbee_app_info.zb,&req,NULL,NULL);
+	enum ZbStatusCodeT status = ZbZdoPermitJoinReq(zb,&req,NULL,NULL);
 	APP_DBG("ZbZdoPermitJoinReq call (status = 0x%02x)", status);
 
 	(void)ZbTimerReset(joinReqTimer, 60 * 1000);
 }
+
+static void APP_ZIGBEE_RGB_main(struct ZigBeeT* zb, void* arg)
+{
+	//TODO call RGB set function here
+	BSP_LED_Toggle(LED_GREEN);
+	ZbTimerReset(appTimer, 1000);	//XXX test
+}
+
 /* USER CODE END FD_LOCAL_FUNCTIONS */
