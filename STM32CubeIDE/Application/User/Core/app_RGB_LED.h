@@ -16,10 +16,17 @@
 #define BIT_1_DUTY	27
 #define BIT_0_DUTY	13
 
+struct RGB
+{
+	uint8_t R;
+	uint8_t G;
+	uint8_t B;
+};
+
 extern TIM_HandleTypeDef* RGB_LED_htim;
 extern uint32_t RGB_LED_Channel;
 
-extern void set_RGB_bits(uint16_t LED, uint8_t R, uint8_t G, uint8_t B);
+extern void set_RGB_bits(uint16_t LED, struct RGB value);
 extern HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 
 #endif /* APP_RGB_LED_H_ */

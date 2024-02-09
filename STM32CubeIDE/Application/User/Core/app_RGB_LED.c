@@ -12,8 +12,14 @@ TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
 
+float ZXY2RGB[3][3] =	//matrix for converting Ikea light bulb color XY ( CIE 1931 colorspace ) to RGB
+{
+		{ 1.656, -0.355, -0.255 },
+		{ -0.707, 1.655, 0.036 },
+		{ 0.052, -0.121, 1.012 }
+};
 
-void set_RGB_bits(uint16_t LED, uint8_t R, uint8_t G, uint8_t B)
+void set_RGB_bits(uint16_t LED ,struct RGB value)
 {
 	assert(LED < NO_OF_LEDS);
 	uint16_t* pBuffer = RGB_bits + LED * 3 * 8;
@@ -21,17 +27,17 @@ void set_RGB_bits(uint16_t LED, uint8_t R, uint8_t G, uint8_t B)
 
 	for(bit = 0; bit <8; bit++)	// place green bits
 	{
-		*pBuffer++ = ((G >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((value.G >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 
 	for(bit = 0; bit <8; bit++)	// place red bits
 	{
-		*pBuffer++ = ((R >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((value.R >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 
 	for(bit = 0; bit <8; bit++)	// place blue bits
 	{
-		*pBuffer++ = ((B >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((value.B >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 }
 
