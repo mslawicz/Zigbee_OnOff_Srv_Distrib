@@ -31,5 +31,6 @@ extern uint8_t RGB_level;
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 extern void set_RGB_bits(uint16_t LED, struct RGB value);
 extern HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+extern unsigned int RGB_main(void);
 
 #endif /* APP_RGB_LED_H_ */

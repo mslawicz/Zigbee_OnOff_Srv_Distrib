@@ -8,6 +8,7 @@
 #include "app_RGB_LED.h"
 #include <assert.h>
 #include <math.h>
+#include "stm32wbxx_nucleo.h"
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
@@ -107,4 +108,10 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 	RGB_bits[NO_OF_BITS - 1] = 0;		// the last pulse to be sent must be a PWM zero pulse
 	// send all RGB bits followed by a zero pulse
 	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NO_OF_BITS);
+}
+
+unsigned int RGB_main(void)
+{
+	BSP_LED_Toggle(LED_GREEN);
+	return 500;
 }
