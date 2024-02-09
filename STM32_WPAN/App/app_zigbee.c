@@ -375,9 +375,9 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 	  endpoint = ZbZclClusterGetEndpoint(cluster);
 	  if (endpoint == SW1_ENDPOINT)
 	  {
-		attrVal = req->level;
-		APP_DBG("levelControl_server_1_move_to_level");
-		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, attrVal);
+		RGB_level = req->level;
+		APP_DBG("levelControl_server_1_move_to_level (level=%d)", RGB_level);
+		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, RGB_level);
 
 		enum ZclDataTypeT* typePtr = NULL;
 		enum ZclStatusCodeT* statusPtr = NULL;;
@@ -385,12 +385,12 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 		if((req->with_onoff) && (*statusPtr == ZCL_STATUS_SUCCESS))
 		{
 			//on/off action must be executed
-			if((attrVal <= 1) && (onOffVal != 0))
+			if((RGB_level <= 1) && (onOffVal != 0))
 			{
 				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_off ");
 				onOff_server_1_off(zigbee_app_info.onOff_server_1, srcInfo, arg);
 			}
-			if((attrVal > 1) && (onOffVal == 0))
+			if((RGB_level > 1) && (onOffVal == 0))
 			{
 				APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_on ");
 				onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);

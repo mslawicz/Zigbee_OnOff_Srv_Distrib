@@ -12,6 +12,7 @@
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
+uint8_t RGB_level = RGB_INIT_LEVEL;
 
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 {

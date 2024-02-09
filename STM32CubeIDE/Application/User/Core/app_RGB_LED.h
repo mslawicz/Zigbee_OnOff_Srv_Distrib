@@ -15,6 +15,7 @@
 #define NO_OF_GROUPS	1
 #define BIT_1_DUTY	27
 #define BIT_0_DUTY	13
+#define RGB_INIT_LEVEL	20
 
 struct RGB
 {
@@ -25,6 +26,7 @@ struct RGB
 
 extern TIM_HandleTypeDef* RGB_LED_htim;
 extern uint32_t RGB_LED_Channel;
+extern uint8_t RGB_level;
 
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 extern void set_RGB_bits(uint16_t LED, struct RGB value);
