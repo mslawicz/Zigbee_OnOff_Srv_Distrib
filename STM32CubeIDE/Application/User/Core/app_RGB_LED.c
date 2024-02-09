@@ -14,6 +14,7 @@ TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
 uint8_t RGB_level = RGB_INIT_LEVEL;
+enum RGB_mode_t RGB_mode = Mode_Static;
 
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 {
@@ -112,6 +113,15 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 
 unsigned int RGB_main(void)
 {
-	BSP_LED_Toggle(LED_GREEN);
-	return 500;
+	unsigned int period = 0;
+
+	switch(RGB_mode)
+	{
+	case Mode_Static:
+	default:
+		BSP_LED_Toggle(LED_GREEN);		//XXX test
+		period = 1000;
+	}
+
+	return period;
 }
