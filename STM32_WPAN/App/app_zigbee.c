@@ -326,8 +326,11 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
 	APP_DBG("colorControl_server_1_move_to_color_xy (x=%d y=%d)", req->color_x, req->color_y);
 
-	static const struct RGB RGB_value = { 0x20, 0x07, 0x7F };
+	struct RGB RGB_value;
 	uint16_t LED_idx;
+
+	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_value);
+
 	for(LED_idx = 0; LED_idx < NO_OF_LEDS; LED_idx++)
 	{
 		set_RGB_bits(LED_idx, RGB_value);
