@@ -88,7 +88,7 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4(void);
 /* USER CODE BEGIN PFP */
 static void APP_ZIGBEE_ConfigGroupAddr(void);
 static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg);
-static void RGB_timer_call(struct ZigBeeT* zb, void* arg);
+static void RGB_timer_callback(struct ZigBeeT* zb, void* arg);
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -671,7 +671,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   joinReqTimer = ZbTimerAlloc(zigbee_app_info.zb, APP_ZIGBEE_JoinReq, NULL);
   ZbTimerReset(joinReqTimer, 10 *1000);
 
-  appTimer = ZbTimerAlloc(zigbee_app_info.zb, RGB_timer_call, NULL);
+  appTimer = ZbTimerAlloc(zigbee_app_info.zb, RGB_timer_callback, NULL);
   ZbTimerReset(appTimer, 1000);	//XXX test
 
   /* USER CODE END CONFIG_ENDPOINT */
@@ -1140,17 +1140,9 @@ static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 	(void)ZbTimerReset(joinReqTimer, 60 * 1000);
 }
 
-static void RGB_timer_call(struct ZigBeeT* zb, void* arg)
+static void RGB_timer_callback(struct ZigBeeT* zb, void* arg)
 {
-	unsigned int period = RGB_main();
-	if(period > 0)
-	{
-		ZbTimerReset(appTimer, period);
-	}
-	else
-	{
-		ZbTimerStop(appTimer);
-	}
+	set_RGB_LEDs(appTimer);
 }
 
 /* USER CODE END FD_LOCAL_FUNCTIONS */

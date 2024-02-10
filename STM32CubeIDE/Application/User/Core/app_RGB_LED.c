@@ -111,7 +111,7 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NO_OF_BITS);
 }
 
-unsigned int RGB_main(void)
+void set_RGB_LEDs(struct ZbTimerT* tm)
 {
 	unsigned int period = 0;
 
@@ -123,5 +123,12 @@ unsigned int RGB_main(void)
 		period = 1000;
 	}
 
-	return period;
+	if(period > 0)
+	{
+		ZbTimerReset(tm, period);
+	}
+	else
+	{
+		ZbTimerStop(tm);
+	}
 }

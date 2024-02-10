@@ -9,6 +9,7 @@
 #define APP_RGB_LED_H_
 
 #include "stm32wbxx_hal.h"
+#include "zigbee_interface.h"
 
 #define NO_OF_LEDS	2
 #define NO_OF_BITS		NO_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero pulse
@@ -38,6 +39,6 @@ extern enum RGB_mode_t RGB_mode;
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 extern void set_RGB_bits(uint16_t LED, struct RGB value);
 extern HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
-extern unsigned int RGB_main(void);
+extern void set_RGB_LEDs(struct ZbTimerT* tm);
 
 #endif /* APP_RGB_LED_H_ */
