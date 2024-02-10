@@ -689,7 +689,6 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbTimerReset(joinReqTimer, 10 *1000);
 
   appTimer = ZbTimerAlloc(zigbee_app_info.zb, RGB_timer_callback, NULL);
-  ZbTimerReset(appTimer, 1000);	//XXX test
 
   /* USER CODE END CONFIG_ENDPOINT */
 }

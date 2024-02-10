@@ -30,6 +30,8 @@ struct RGB_Params_t RGB_params =
 		.mode = Mode_Static
 };
 
+const uint16_t GroupSize[NO_OF_GROUPS] = { 1, 1 };
+
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 {
@@ -207,6 +209,7 @@ void RGB_cyclic_change(void)
 	struct RGB RGB_value;
 
 	uint8_t group;
+	uint16_t groupIdx = 0;
 	for(group = 0; group < NO_OF_GROUPS; group++)
 	{
 		float phase = (float)step / CYCLIC_STEPS + (float)group / NO_OF_GROUPS;
@@ -216,9 +219,10 @@ void RGB_cyclic_change(void)
 		RGB_value.R = ColorPattern[lowerIdx][0] + (int)((ColorPattern[lowerIdx + 1][0] - ColorPattern[lowerIdx][0]) * (patternPhase - lowerIdx));
 		RGB_value.G = ColorPattern[lowerIdx][1] + (int)((ColorPattern[lowerIdx + 1][1] - ColorPattern[lowerIdx][1]) * (patternPhase - lowerIdx));
 		RGB_value.B = ColorPattern[lowerIdx][2] + (int)((ColorPattern[lowerIdx + 1][2] - ColorPattern[lowerIdx][2]) * (patternPhase - lowerIdx));
-		//TODO set LEDs of the group
+		set_RGB_LEDs(groupIdx, GroupSize[group], RGB_value, RGB_params.level);	//set all LEDs in the group
+		groupIdx += GroupSize[group];		//set start index of the next group
 	}
 
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
-	step = (step + 1) % CYCLIC_STEPS;
+	step = (step + 1) % CYCLIC_STEPS;		//next cycle step in the next function call
 }
