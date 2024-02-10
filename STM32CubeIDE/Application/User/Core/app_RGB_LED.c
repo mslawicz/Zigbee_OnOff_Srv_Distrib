@@ -22,6 +22,7 @@ struct RGB_Params_t RGB_params =
 		.mode = Mode_Static
 };
 
+//convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 {
 #define constrain_from_0(x)		if(x < 0) { x = 0.0; }
@@ -77,6 +78,7 @@ void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 	pRGB->B = (uint8_t)(b * 255 + 0.5);
 }
 
+//adjust gamma correction to a color value
 float gamma_correction(float val2correct)
 {
 	if(val2correct <= 0.0031308)
@@ -87,11 +89,13 @@ float gamma_correction(float val2correct)
 	return 1.055 * powf(val2correct, 0.416666) - 0.055;
 }
 
+//adjust color value to the desired level
 uint8_t apply_level(uint8_t value, uint8_t level)
 {
 	return value * level / 255;	//TODO change to non-linear transformation
 }
 
+//set RGB LED PWM pulse data to the array
 void set_RGB_bits(uint16_t LED ,struct RGB value, uint8_t level)
 {
 	assert(LED < NO_OF_LEDS);
@@ -118,7 +122,7 @@ void set_RGB_bits(uint16_t LED ,struct RGB value, uint8_t level)
 	}
 }
 
-
+//send all RGB LED data to LED devices
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 {
 	RGB_bits[NO_OF_BITS - 1] = 0;		// the last pulse to be sent must be a PWM zero pulse
