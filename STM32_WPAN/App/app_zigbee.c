@@ -203,6 +203,12 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
     APP_DBG("onOff_server_1_off");
     BSP_LED_Off(LED_RED);
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
+    if(RGB_params.OnOff != 0)
+    {
+    	RGB_params.OnOff = 0;
+    	ZbTimerStop(appTimer);	//no automatic actions in off state
+    	turn_off_LEDs();		//turn off all LEDs
+    }
   }
   else 
   {
@@ -225,6 +231,11 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
     APP_DBG("onOff_server_1_on");
     BSP_LED_On(LED_RED);
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
+    if(RGB_params.OnOff == 0)
+    {
+    	RGB_params.OnOff = 1;
+    	RGB_LED_action(appTimer);
+    }
   }
   else 
   {
@@ -328,10 +339,13 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
 	APP_DBG("colorControl_server_1_move_to_color_xy (x=%d y=%d)", req->color_x, req->color_y);
 
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_X, req->color_x);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_Y, req->color_y);
+
 	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_params.color);
+	/* execute action if the device is on */
 	if(RGB_params.OnOff != 0)
 	{
-		//execute action if the device is on
 		RGB_params.mode = Mode_Static;
 		RGB_LED_action(appTimer);
 	}
@@ -377,6 +391,12 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 		RGB_params.level = req->level;
 		APP_DBG("levelControl_server_1_move_to_level (level=%d)", RGB_params.level);
 		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, RGB_params.level);
+
+		// send data to LEDs if the device is on
+		if(RGB_params.OnOff != 0)
+		{
+			RGB_LED_action(appTimer);
+		}
 
 		enum ZclDataTypeT* typePtr = NULL;
 		enum ZclStatusCodeT* statusPtr = NULL;;

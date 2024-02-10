@@ -47,5 +47,6 @@ extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 extern void RGB_LED_action(struct ZbTimerT* tm);
+extern void turn_off_LEDs(void);
 
 #endif /* APP_RGB_LED_H_ */

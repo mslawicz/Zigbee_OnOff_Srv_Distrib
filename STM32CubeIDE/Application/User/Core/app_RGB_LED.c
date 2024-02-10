@@ -166,3 +166,11 @@ void RGB_LED_action(struct ZbTimerT* tm)
 		ZbTimerStop(tm);
 	}
 }
+
+//turns off all LEDs without changing parameters
+void turn_off_LEDs(void)
+{
+	const struct RGB RGB_off = { 0, 0, 0 };
+	set_RGB_LEDs(0, NO_OF_LEDS, RGB_off, 0);	//set all LEDs to off state
+	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+}
