@@ -16,7 +16,7 @@
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
 #define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
 #define RGB_INIT_LEVEL	20
-#define CYCLIC_STEPS	3
+#define CYCLIC_STEPS	5
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
@@ -161,6 +161,12 @@ void RGB_LED_action(struct ZbTimerT* tm)
 		BSP_LED_Toggle(LED_GREEN);		//XXX test
 		set_RGB_LEDs(0, NO_OF_LEDS, RGB_params.color, RGB_params.level);	//set all LEDs to current global color and level
 		period = 0;	//one-shot action
+		break;
+
+	case Mode_CyclingGroups:
+		RGB_cyclic_change();
+		period = 1000;	//TODO adjust to number of steps
+		break;
 	}
 
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
@@ -198,11 +204,21 @@ void RGB_cyclic_change(void)
 	};
 
 	static uint16_t step = 0;		//current step index
+	struct RGB RGB_value;
 
 	uint8_t group;
 	for(group = 0; group < NO_OF_GROUPS; group++)
 	{
 		float phase = (float)step / CYCLIC_STEPS + (float)group / NO_OF_GROUPS;
-		phase -= (int)phase;		//only fractional part of phase
+		phase -= (int)phase;		//leave only the fractional part of phase
+		float patternPhase = phase * 6;	//floating index for the ColorPattern array
+		uint8_t lowerIdx = (int)patternPhase;
+		RGB_value.R = ColorPattern[lowerIdx][0] + (int)((ColorPattern[lowerIdx + 1][0] - ColorPattern[lowerIdx][0]) * (patternPhase - lowerIdx));
+		RGB_value.G = ColorPattern[lowerIdx][1] + (int)((ColorPattern[lowerIdx + 1][1] - ColorPattern[lowerIdx][1]) * (patternPhase - lowerIdx));
+		RGB_value.B = ColorPattern[lowerIdx][2] + (int)((ColorPattern[lowerIdx + 1][2] - ColorPattern[lowerIdx][2]) * (patternPhase - lowerIdx));
+		//TODO set LEDs of the group
 	}
+
+	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+	step = (step + 1) % CYCLIC_STEPS;
 }

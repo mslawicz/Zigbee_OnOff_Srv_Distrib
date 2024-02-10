@@ -21,6 +21,7 @@ struct RGB
 enum RGB_mode_t
 {
 	Mode_Static,
+	Mode_CyclingGroups,
 	No_Of_Modes
 };
 
@@ -41,5 +42,6 @@ void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 extern void RGB_LED_action(struct ZbTimerT* tm);
 extern void turn_off_LEDs(void);
+extern void RGB_cyclic_change(void);
 
 #endif /* APP_RGB_LED_H_ */
