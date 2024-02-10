@@ -10,6 +10,14 @@
 #include <math.h>
 #include "stm32wbxx_nucleo.h"
 
+#define NO_OF_LEDS	2
+#define NO_OF_BITS		NO_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero pulse
+#define NO_OF_GROUPS	2
+#define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
+#define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
+#define RGB_INIT_LEVEL	20
+#define CYCLIC_STEPS	3
+
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
@@ -173,4 +181,28 @@ void turn_off_LEDs(void)
 	const struct RGB RGB_off = { 0, 0, 0 };
 	set_RGB_LEDs(0, NO_OF_LEDS, RGB_off, 0);	//set all LEDs to off state
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+}
+
+//mode of cyclically changing colors in groups
+void RGB_cyclic_change(void)
+{
+	static const uint8_t ColorPattern[7][3] =
+	{
+			{255, 0, 0},
+			{255, 255, 0},
+			{0, 255, 0},
+			{0, 255, 255},
+			{0, 0, 255},
+			{255, 0, 255},
+			{255, 0, 0}
+	};
+
+	static uint16_t step = 0;		//current step index
+
+	uint8_t group;
+	for(group = 0; group < NO_OF_GROUPS; group++)
+	{
+		float phase = (float)step / CYCLIC_STEPS + (float)group / NO_OF_GROUPS;
+		phase -= (int)phase;		//only fractional part of phase
+	}
 }

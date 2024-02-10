@@ -11,13 +11,6 @@
 #include "stm32wbxx_hal.h"
 #include "zigbee_interface.h"
 
-#define NO_OF_LEDS	2
-#define NO_OF_BITS		NO_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero pulse
-#define NO_OF_GROUPS	1
-#define BIT_1_DUTY	27
-#define BIT_0_DUTY	13
-#define RGB_INIT_LEVEL	20
-
 struct RGB
 {
 	uint8_t R;
