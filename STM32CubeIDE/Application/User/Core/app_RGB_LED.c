@@ -18,6 +18,7 @@ struct RGB_Params_t RGB_params =
 {
 		.OnOff = 0,
 		.level = RGB_INIT_LEVEL,
+		.color = { 255, 255, 255 },
 		.mode = Mode_Static
 };
 
@@ -86,25 +87,34 @@ float gamma_correction(float val2correct)
 	return 1.055 * powf(val2correct, 0.416666) - 0.055;
 }
 
-void set_RGB_bits(uint16_t LED ,struct RGB value)
+uint8_t apply_level(uint8_t value, uint8_t level)
+{
+	return value * level / 255;	//TODO change to non-linear transformation
+}
+
+void set_RGB_bits(uint16_t LED ,struct RGB value, uint8_t level)
 {
 	assert(LED < NO_OF_LEDS);
 	uint16_t* pBuffer = RGB_bits + LED * 3 * 8;
 	uint8_t bit;
+	uint8_t colorValue;
 
+	colorValue = apply_level(value.R, level);
 	for(bit = 0; bit <8; bit++)	// place green bits
 	{
-		*pBuffer++ = ((value.G >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((colorValue >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 
+	colorValue = apply_level(value.G, level);
 	for(bit = 0; bit <8; bit++)	// place red bits
 	{
-		*pBuffer++ = ((value.R >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((colorValue >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 
+	colorValue = apply_level(value.B, level);
 	for(bit = 0; bit <8; bit++)	// place blue bits
 	{
-		*pBuffer++ = ((value.B >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
+		*pBuffer++ = ((colorValue >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 }
 
@@ -116,7 +126,19 @@ HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel)
 	return HAL_TIM_PWM_Start_DMA(htim, Channel, (uint32_t*)RGB_bits, NO_OF_BITS);
 }
 
-void set_RGB_LEDs(struct ZbTimerT* tm)
+// set a number of LEDs to a certain color and level
+void set_RGB_LEDs(uint16_t first, uint16_t size, struct RGB RGB_value, uint8_t level)
+{
+	uint16_t LED_idx;
+
+	for(LED_idx = first; LED_idx < first + size; LED_idx++)
+	{
+		set_RGB_bits(LED_idx, RGB_value, level);
+	}
+}
+
+//RGB LED action must be executed every time any parameter must be changed (on/off, color, brightness)
+void RGB_LED_action(struct ZbTimerT* tm)
 {
 	unsigned int period = 0;
 
@@ -125,8 +147,11 @@ void set_RGB_LEDs(struct ZbTimerT* tm)
 	case Mode_Static:
 	default:
 		BSP_LED_Toggle(LED_GREEN);		//XXX test
-		period = 250;
+		set_RGB_LEDs(0, NO_OF_LEDS, RGB_params.color, RGB_params.level);	//set all LEDs to current global color and level
+		period = 0;	//one-shot action
 	}
+
+	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
 
 	if(period > 0)
 	{

@@ -328,18 +328,9 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
 	APP_DBG("colorControl_server_1_move_to_color_xy (x=%d y=%d)", req->color_x, req->color_y);
 
-	struct RGB RGB_value;
-	uint16_t LED_idx;
+	//convert_xy_to_RGB(req->color_x, req->color_y, &RGB_value);
 
-	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_value);
-
-	for(LED_idx = 0; LED_idx < NO_OF_LEDS; LED_idx++)
-	{
-		set_RGB_bits(LED_idx, RGB_value);
-	}
-
-	HAL_StatusTypeDef status = send_RGB_data(RGB_LED_htim, RGB_LED_Channel);
-  return (status == HAL_OK) ? ZCL_STATUS_SUCCESS : ZCL_STATUS_FAILURE;
+  return ZCL_STATUS_SUCCESS;
   /* USER CODE END 10 ColorControl server 1 move_to_color_xy 1 */
 }
 
@@ -1142,7 +1133,7 @@ static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 
 static void RGB_timer_callback(struct ZigBeeT* zb, void* arg)
 {
-	set_RGB_LEDs(appTimer);
+	RGB_LED_action(appTimer);
 }
 
 /* USER CODE END FD_LOCAL_FUNCTIONS */

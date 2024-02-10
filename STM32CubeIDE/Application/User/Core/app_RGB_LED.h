@@ -35,6 +35,7 @@ struct RGB_Params_t
 {
 	uint8_t OnOff;
 	uint8_t level;
+	struct RGB color;
 	enum RGB_mode_t mode;
 };
 
@@ -43,8 +44,8 @@ extern uint32_t RGB_LED_Channel;
 extern struct RGB_Params_t RGB_params;
 
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
-extern void set_RGB_bits(uint16_t LED, struct RGB value);
-extern HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
-extern void set_RGB_LEDs(struct ZbTimerT* tm);
+void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
+HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+extern void RGB_LED_action(struct ZbTimerT* tm);
 
 #endif /* APP_RGB_LED_H_ */
