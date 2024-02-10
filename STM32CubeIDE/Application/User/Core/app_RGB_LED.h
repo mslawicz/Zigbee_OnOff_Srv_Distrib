@@ -31,10 +31,16 @@ enum RGB_mode_t
 	No_Of_Modes
 };
 
+struct RGB_Params_t
+{
+	uint8_t OnOff;
+	uint8_t level;
+	enum RGB_mode_t mode;
+};
+
 extern TIM_HandleTypeDef* RGB_LED_htim;
 extern uint32_t RGB_LED_Channel;
-extern uint8_t RGB_level;
-extern enum RGB_mode_t RGB_mode;
+extern struct RGB_Params_t RGB_params;
 
 extern void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB);
 extern void set_RGB_bits(uint16_t LED, struct RGB value);

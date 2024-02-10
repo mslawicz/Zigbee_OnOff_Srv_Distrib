@@ -13,8 +13,13 @@
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
 uint16_t RGB_bits[NO_OF_BITS];
-uint8_t RGB_level = RGB_INIT_LEVEL;
-enum RGB_mode_t RGB_mode = Mode_Static;
+
+struct RGB_Params_t RGB_params =
+{
+		.OnOff = 0,
+		.level = RGB_INIT_LEVEL,
+		.mode = Mode_Static
+};
 
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
 {
@@ -115,12 +120,12 @@ void set_RGB_LEDs(struct ZbTimerT* tm)
 {
 	unsigned int period = 0;
 
-	switch(RGB_mode)
+	switch(RGB_params.mode)
 	{
 	case Mode_Static:
 	default:
 		BSP_LED_Toggle(LED_GREEN);		//XXX test
-		period = 1000;
+		period = 250;
 	}
 
 	if(period > 0)
