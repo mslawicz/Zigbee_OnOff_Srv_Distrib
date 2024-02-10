@@ -328,7 +328,13 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
   /* USER CODE BEGIN 10 ColorControl server 1 move_to_color_xy 1 */
 	APP_DBG("colorControl_server_1_move_to_color_xy (x=%d y=%d)", req->color_x, req->color_y);
 
-	//convert_xy_to_RGB(req->color_x, req->color_y, &RGB_value);
+	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_params.color);
+	if(RGB_params.OnOff != 0)
+	{
+		//execute action if the device is on
+		RGB_params.mode = Mode_Static;
+		RGB_LED_action(appTimer);
+	}
 
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 10 ColorControl server 1 move_to_color_xy 1 */
