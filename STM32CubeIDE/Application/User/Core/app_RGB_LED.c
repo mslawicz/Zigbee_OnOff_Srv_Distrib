@@ -10,7 +10,7 @@
 #include <math.h>
 #include "stm32wbxx_nucleo.h"
 
-#define NO_OF_LEDS	2
+#define NO_OF_LEDS	8
 #define NO_OF_BITS		NO_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero pulse
 #define NO_OF_GROUPS	2
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
@@ -30,7 +30,7 @@ struct RGB_Params_t RGB_params =
 		.mode = Mode_Static
 };
 
-const uint16_t GroupSize[NO_OF_GROUPS] = { 1, 1 };
+const uint16_t GroupSize[NO_OF_GROUPS] = { 4, 4 };
 
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
@@ -113,14 +113,15 @@ void set_RGB_bits(uint16_t LED ,struct RGB value, uint8_t level)
 	uint8_t bit;
 	uint8_t colorValue;
 
-	colorValue = apply_level(value.R, level);
-	for(bit = 0; bit <8; bit++)	// place green bits
+	//data must be sent in GRB order
+	colorValue = apply_level(value.G, level);
+	for(bit = 0; bit <8; bit++)	// place red bits
 	{
 		*pBuffer++ = ((colorValue >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
 
-	colorValue = apply_level(value.G, level);
-	for(bit = 0; bit <8; bit++)	// place red bits
+	colorValue = apply_level(value.R, level);
+	for(bit = 0; bit <8; bit++)	// place green bits
 	{
 		*pBuffer++ = ((colorValue >> (7-bit)) & 1) ? BIT_1_DUTY : BIT_0_DUTY;
 	}
