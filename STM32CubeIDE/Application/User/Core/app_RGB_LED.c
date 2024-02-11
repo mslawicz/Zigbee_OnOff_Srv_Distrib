@@ -16,7 +16,8 @@
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
 #define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
 #define RGB_INIT_LEVEL	20
-#define CYCLIC_STEPS	120		//max 0xFFFF
+#define CYCLIC_STEPS_GROUPS	120		//max 0xFFFF
+#define CYCLIC_STEPS_ALL	500		//max 0xFFFF
 #define CYCLE_PERIOD	20		//milliseconds
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
@@ -31,7 +32,23 @@ struct RGB_Params_t RGB_params =
 		.mode = Mode_Static
 };
 
-const uint16_t GroupSize[NO_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };
+static const uint16_t GroupSize[NO_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };
+
+static const uint8_t ColorPattern[7][3] =
+{
+		{255, 0, 0},
+		{255, 255, 0},
+		{0, 255, 0},
+		{0, 255, 255},
+		{0, 0, 255},
+		{255, 0, 255},
+		{255, 0, 0}
+};
+
+void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
+HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
+void RGB_cyclic_change_groups(void);
+void RGB_cyclic_change_all(void);
 
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
@@ -168,7 +185,12 @@ void RGB_LED_action(struct ZbTimerT* tm)
 		break;
 
 	case Mode_CyclingGroups:
-		RGB_cyclic_change();
+		RGB_cyclic_change_groups();
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_CyclingAll:
+		RGB_cyclic_change_all();
 		period = CYCLE_PERIOD;
 		break;
 	}
@@ -194,19 +216,8 @@ void turn_off_LEDs(void)
 }
 
 //mode of cyclically changing colors in groups
-void RGB_cyclic_change(void)
+void RGB_cyclic_change_groups(void)
 {
-	static const uint8_t ColorPattern[7][3] =
-	{
-			{255, 0, 0},
-			{255, 255, 0},
-			{0, 255, 0},
-			{0, 255, 255},
-			{0, 0, 255},
-			{255, 0, 255},
-			{255, 0, 0}
-	};
-
 	static uint16_t step = 0;		//current step index
 	struct RGB RGB_value;
 
@@ -214,7 +225,7 @@ void RGB_cyclic_change(void)
 	uint16_t groupIdx = 0;
 	for(group = 0; group < NO_OF_GROUPS; group++)
 	{
-		float phase = (float)step / CYCLIC_STEPS + (float)group / NO_OF_GROUPS;
+		float phase = (float)step / CYCLIC_STEPS_GROUPS + (float)group / NO_OF_GROUPS;
 		phase -= (int)phase;		//leave only the fractional part of phase
 		float patternPhase = phase * 6;	//floating index for the ColorPattern array
 		uint8_t lowerIdx = (int)patternPhase;
@@ -226,5 +237,23 @@ void RGB_cyclic_change(void)
 	}
 
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
-	step = (step + 1) % CYCLIC_STEPS;		//next cycle step in the next function call
+	step = (step + 1) % CYCLIC_STEPS_GROUPS;		//next cycle step in the next function call
+}
+
+//mode of cyclically changing colors of all LEDs
+void RGB_cyclic_change_all(void)
+{
+	static uint16_t step = 0;		//current step index
+	struct RGB RGB_value;
+
+	float phase = (float)step / CYCLIC_STEPS_ALL;
+	phase -= (int)phase;		//leave only the fractional part of phase
+	float patternPhase = phase * 6;	//floating index for the ColorPattern array
+	uint8_t lowerIdx = (int)patternPhase;
+	RGB_value.R = ColorPattern[lowerIdx][0] + (int)((ColorPattern[lowerIdx + 1][0] - ColorPattern[lowerIdx][0]) * (patternPhase - lowerIdx));
+	RGB_value.G = ColorPattern[lowerIdx][1] + (int)((ColorPattern[lowerIdx + 1][1] - ColorPattern[lowerIdx][1]) * (patternPhase - lowerIdx));
+	RGB_value.B = ColorPattern[lowerIdx][2] + (int)((ColorPattern[lowerIdx + 1][2] - ColorPattern[lowerIdx][2]) * (patternPhase - lowerIdx));
+	set_RGB_LEDs(0, NO_OF_LEDS, RGB_value, RGB_params.level);	//set all LEDs
+	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+	step = (step + 1) % CYCLIC_STEPS_ALL;		//next cycle step in the next function call
 }
