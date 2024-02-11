@@ -457,7 +457,8 @@ static enum ZclStatusCodeT window_server_1_up_command(struct ZbZclClusterT *clus
 {
   /* USER CODE BEGIN 17 Window server 1 up_command 1 */
 	APP_DBG("window_server_1_up_command");
-	BSP_LED_Toggle(LED_GREEN);
+	RGB_params.mode = (RGB_params.mode + 1) % No_Of_Modes;
+	RGB_LED_action(appTimer);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 17 Window server 1 up_command 1 */
 }
@@ -467,7 +468,8 @@ static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cl
 {
   /* USER CODE BEGIN 18 Window server 1 down_command 1 */
 	APP_DBG("window_server_1_down_command");
-	BSP_LED_Toggle(LED_GREEN);
+	RGB_params.mode =  (RGB_params.mode == Mode_Static) ? (enum RGB_mode_t)(No_Of_Modes - 1) : (RGB_params.mode - 1);
+	RGB_LED_action(appTimer);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 18 Window server 1 down_command 1 */
 }
@@ -486,6 +488,8 @@ static enum ZclStatusCodeT window_server_1_stop_command(struct ZbZclClusterT *cl
 {
   /* USER CODE BEGIN 20 Window server 1 stop_command 1 */
 	APP_DBG("window_server_1_stop_command");
+	RGB_params.mode = Mode_Static;
+	RGB_LED_action(appTimer);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 20 Window server 1 stop_command 1 */
 }

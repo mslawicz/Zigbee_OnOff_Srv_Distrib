@@ -16,7 +16,7 @@
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
 #define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
 #define RGB_INIT_LEVEL	20
-#define CYCLIC_STEPS	500	//max 0xFFFF
+#define CYCLIC_STEPS	120		//max 0xFFFF
 #define CYCLE_PERIOD	20		//milliseconds
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
@@ -28,7 +28,7 @@ struct RGB_Params_t RGB_params =
 		.OnOff = 0,
 		.level = RGB_INIT_LEVEL,
 		.color = { 255, 255, 255 },
-		.mode = Mode_CyclingGroups//Mode_Static  XXX test
+		.mode = Mode_Static
 };
 
 const uint16_t GroupSize[NO_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };
