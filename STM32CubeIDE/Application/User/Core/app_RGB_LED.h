@@ -21,8 +21,10 @@ struct RGB
 enum RGB_mode_t
 {
 	Mode_Static,
-	Mode_CyclingGroups,
-	Mode_CyclingAll,
+	Mode_CyclingGroupsFast,
+	Mode_CyclingGroupsSlow,
+	Mode_CyclingAllFast,
+	Mode_CyclingAllSlow,
 	No_Of_Modes
 };
 

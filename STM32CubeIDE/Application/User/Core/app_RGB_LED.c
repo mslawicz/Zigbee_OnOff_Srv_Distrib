@@ -181,13 +181,23 @@ void RGB_LED_action(struct ZbTimerT* tm)
 		period = 0;	//one-shot action
 		break;
 
-	case Mode_CyclingGroups:
+	case Mode_CyclingGroupsFast:
 		RGB_cyclic_change(true, 120);
 		period = CYCLE_PERIOD;
 		break;
 
-	case Mode_CyclingAll:
+	case Mode_CyclingGroupsSlow:
+		RGB_cyclic_change(true, 3000);
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_CyclingAllFast:
 		RGB_cyclic_change(false, 500);
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_CyclingAllSlow:
+		RGB_cyclic_change(false, 6000);
 		period = CYCLE_PERIOD;
 		break;
 	}
