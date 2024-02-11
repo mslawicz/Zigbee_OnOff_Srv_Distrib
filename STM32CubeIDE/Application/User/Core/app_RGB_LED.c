@@ -12,11 +12,12 @@
 
 #define NO_OF_LEDS	8
 #define NO_OF_BITS		NO_OF_LEDS * 3 * 8 + 1	// number of LEDs * 3 colors * 8 bits plus 1 additional byte for a zero pulse
-#define NO_OF_GROUPS	2
+#define NO_OF_GROUPS	8
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
 #define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
 #define RGB_INIT_LEVEL	20
-#define CYCLIC_STEPS	5
+#define CYCLIC_STEPS	500	//max 0xFFFF
+#define CYCLE_PERIOD	20		//milliseconds
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
@@ -27,10 +28,10 @@ struct RGB_Params_t RGB_params =
 		.OnOff = 0,
 		.level = RGB_INIT_LEVEL,
 		.color = { 255, 255, 255 },
-		.mode = Mode_Static
+		.mode = Mode_CyclingGroups//Mode_Static  XXX test
 };
 
-const uint16_t GroupSize[NO_OF_GROUPS] = { 4, 4 };
+const uint16_t GroupSize[NO_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };
 
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
@@ -168,7 +169,7 @@ void RGB_LED_action(struct ZbTimerT* tm)
 
 	case Mode_CyclingGroups:
 		RGB_cyclic_change();
-		period = 1000;	//TODO adjust to number of steps
+		period = CYCLE_PERIOD;
 		break;
 	}
 
