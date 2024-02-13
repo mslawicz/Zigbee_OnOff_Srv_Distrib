@@ -587,7 +587,12 @@ static enum ZclStatusCodeT window_server_1_down_command(struct ZbZclClusterT *cl
 static enum ZclStatusCodeT window_server_1_set_lift_and_tilt_command(struct ZbZclClusterT *cluster, void *arg, uint8_t liftPercentage, uint8_t tiltPercentage)
 {
   /* USER CODE BEGIN 28 Window server 1 set_lift_and_tilt_command 1 */
-	APP_DBG("window_server_1_set_lift_and_tilt_command");
+	APP_DBG("window_server_1_set_lift_and_tilt_command (lift=%d, tilt=%d)", liftPercentage, tiltPercentage);
+	if(RGB_params.OnOff != 0)
+	{
+		(void)ZbZclAttrIntegerWrite(cluster, ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, liftPercentage);
+		(void)ZbZclAttrIntegerWrite(cluster, ZCL_WNCV_SVR_ATTR_CURR_POS_TILT_PERCENT, tiltPercentage);
+	}
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 28 Window server 1 set_lift_and_tilt_command 1 */
 }
@@ -803,11 +808,15 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 	{
 			ZCL_WNCV_SVR_ATTR_MODE, ZCL_DATATYPE_BITMAP_8BIT,
 			ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_WNCV_SVR_ATTR_CURR_POS_TILT_PERCENT, ZCL_DATATYPE_UNSIGNED_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	}
   };
   ZbZclAttrAppendList( zigbee_app_info.window_server_1, windowCovering_attr_list, ZCL_ATTR_LIST_LEN(windowCovering_attr_list));
-  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_COVERING_TYPE, ZCL_WNCV_TYPE_ROLLERSHADE);
-  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CONFIG_STATUS, ZCL_WNCV_STATUS_OPERATIONAL | ZCL_WNCV_STATUS_ONLINE | ZCL_WNCV_STATUS_LIFT_CLOSED_LOOP |ZCL_WNCV_STATUS_LIFT_ENCODER);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_COVERING_TYPE, ZCL_WNCV_TYPE_SHUTTER);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CONFIG_STATUS, ZCL_WNCV_STATUS_OPERATIONAL | ZCL_WNCV_STATUS_ONLINE | ZCL_WNCV_STATUS_LIFT_CLOSED_LOOP |ZCL_WNCV_STATUS_LIFT_ENCODER | ZCL_WNCV_STATUS_TILT_ENCODER);
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_CURR_POS_LIFT_PERCENT, 0x32);
 
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.window_server_1, ZCL_WNCV_SVR_ATTR_INSTALLED_OPENED_LIMIT_LIFT, 0x0000);
