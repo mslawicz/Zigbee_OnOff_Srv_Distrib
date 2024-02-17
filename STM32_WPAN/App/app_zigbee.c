@@ -258,6 +258,7 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
 
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_X, req->color_x);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_CURRENT_Y, req->color_y);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
 
 	convert_xy_to_RGB(req->color_x, req->color_y, &RGB_params.color);
 	/* execute action if the device is on */
@@ -293,7 +294,9 @@ static enum ZclStatusCodeT colorControl_server_1_step_color_xy(struct ZbZclClust
 static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveToColorTempReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 6 ColorControl server 1 move_to_color_temp 1 */
-	APP_DBG("colorControl_server_1_move_to_color_temp");
+	APP_DBG("colorControl_server_1_move_to_color_temp (temp=%d)", req->color_temp);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS,req->color_temp);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 6 ColorControl server 1 move_to_color_temp 1 */
 }
@@ -302,7 +305,11 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZcl
 static enum ZclStatusCodeT colorControl_server_1_color_loop_set(struct ZbZclClusterT *cluster, struct ZbZclColorClientColorLoopSetReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 7 ColorControl server 1 color_loop_set 1 */
-	APP_DBG("colorControl_server_1_color_loop_set");
+	APP_DBG("colorControl_server_1_color_loop_set (flags=%d action=%d dir=%d hue=%d)", req->update_flags, req->action, req->direction, req->start_hue);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_ACTIVE, (req->action == 0) ? 0 : 1);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_DIR, req->direction);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_LOOP_TIME, req->transition_time);
+	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, 0);
   return ZCL_STATUS_SUCCESS;
   /* USER CODE END 7 ColorControl server 1 color_loop_set 1 */
 }
@@ -539,11 +546,19 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   static const struct ZbZclAttrT colorControl_attr_list[] =		/* MS add optional attributes of color control cluster */
   {
 	{
+			ZCL_COLOR_ATTR_REMAINING_TIME, ZCL_DATATYPE_UNSIGNED_16BIT,
+		ZCL_ATTR_FLAG_REPORTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
 			ZCL_COLOR_ATTR_CURRENT_X, ZCL_DATATYPE_UNSIGNED_16BIT,
 			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	},
 	{
 			ZCL_COLOR_ATTR_CURRENT_Y, ZCL_DATATYPE_UNSIGNED_16BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS, ZCL_DATATYPE_UNSIGNED_16BIT,
 			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	},
 	{
@@ -555,7 +570,15 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 		ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	},
 	{
-			ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS, ZCL_DATATYPE_UNSIGNED_16BIT,
+			ZCL_COLOR_ATTR_COLOR_LOOP_ACTIVE, ZCL_DATATYPE_UNSIGNED_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_COLOR_ATTR_COLOR_LOOP_DIR, ZCL_DATATYPE_UNSIGNED_8BIT,
+			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+			ZCL_COLOR_ATTR_COLOR_LOOP_TIME, ZCL_DATATYPE_UNSIGNED_16BIT,
 			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	},
 	{
@@ -570,10 +593,6 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 			ZCL_COLOR_ATTR_STARTUP_COLOR_TEMP, ZCL_DATATYPE_UNSIGNED_16BIT,
 			ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
 	},
-	{
-			ZCL_COLOR_ATTR_REMAINING_TIME, ZCL_DATATYPE_UNSIGNED_16BIT,
-		ZCL_ATTR_FLAG_REPORTABLE, 0, NULL, {0, 0}, {0, 0}
-	}
   };
   ZbZclAttrAppendList( zigbee_app_info.colorControl_server_1, colorControl_attr_list, ZCL_ATTR_LIST_LEN(colorControl_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_MODE, ZCL_COLOR_MODE_XY);
