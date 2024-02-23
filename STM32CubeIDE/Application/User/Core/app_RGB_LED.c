@@ -46,6 +46,7 @@ static const uint8_t ColorPattern[7][3] =
 void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 void RGB_cyclic_change(bool use_groups, uint32_t cycles);
+void RGB_random_change(bool use_groups, uint32_t cycles);
 
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
@@ -249,3 +250,12 @@ void RGB_cyclic_change(bool use_groups, uint32_t noOfSteps)
 	step = (step + 1) % noOfSteps;		//next cycle step in the next function call
 }
 
+//mode of randomly changing colors in groups
+//use_groups: different colors in groups (true) or the same color for all groups (false)
+//noOfSteps: number of steps in a single change action
+void RGB_random_change(bool use_groups, uint32_t noOfSteps)
+{
+
+
+	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+}
