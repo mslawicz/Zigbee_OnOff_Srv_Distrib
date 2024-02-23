@@ -61,6 +61,7 @@
 
 /* Private macros ------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define ATTR_COLOR_TEMP_BEGIN		200
 /* USER CODE END PM */
 
 /* External definition -------------------------------------------------------*/
@@ -295,6 +296,11 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZcl
 {
   /* USER CODE BEGIN 6 ColorControl server 1 move_to_color_temp 1 */
 	APP_DBG("colorControl_server_1_move_to_color_temp (temp=%d)", req->color_temp);
+	if((req->color_temp >= ATTR_COLOR_TEMP_BEGIN) && (req->color_temp < ATTR_COLOR_TEMP_BEGIN + No_Of_Modes))
+	{
+		RGB_params.mode = (req->color_temp - ATTR_COLOR_TEMP_BEGIN);
+		RGB_LED_action(appTimer);
+	}
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS,req->color_temp);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
   return ZCL_STATUS_SUCCESS;
@@ -597,9 +603,9 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclAttrAppendList( zigbee_app_info.colorControl_server_1, colorControl_attr_list, ZCL_ATTR_LIST_LEN(colorControl_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_MODE, ZCL_COLOR_MODE_XY);
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_ENH_COLOR_MODE, ZCL_COLOR_ENH_MODE_CURR_XY);
-  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_TEMP_MIN, 0);
-  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_TEMP_MAX, ZCL_COLOR_TEMP_MAX);
-  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_STARTUP_COLOR_TEMP, ZCL_COLOR_TEMP_DEFAULT);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_TEMP_MIN, ATTR_COLOR_TEMP_BEGIN);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_COLOR_TEMP_MAX, ATTR_COLOR_TEMP_BEGIN + No_Of_Modes - 1);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.colorControl_server_1, ZCL_COLOR_ATTR_STARTUP_COLOR_TEMP, ATTR_COLOR_TEMP_BEGIN);
 
   static const struct ZbZclAttrT levelControl_attr_list[] =		/* MS add optional attributes of level control cluster */
   {
