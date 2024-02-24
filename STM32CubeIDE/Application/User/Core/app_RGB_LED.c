@@ -278,11 +278,25 @@ void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 	static struct RGB RGB_value[NO_OF_GROUPS][2];		//previous and next RGB values
 	static uint8_t activeGroup = 0;
 	static uint32_t currentStep = 0;
+	static bool firstPass = true;
 
 	uint8_t group;
 	uint16_t groupIdx = 0;
 	struct RGB currentValue;
 	struct RGB targetValue;
+
+	if(firstPass)
+	{
+		targetValue.R = rand() % 0x100;
+		targetValue.G = rand() % 0x100;
+		targetValue.B = rand() % 0x100;
+		for(group = 0; group < NO_OF_GROUPS; group++)
+		{
+			RGB_value[group][1] = RGB_value[group][0] = targetValue;
+		}
+		set_RGB_LEDs(0, NO_OF_LEDS, targetValue, RGB_params.level);	//set all LEDs to random value
+		firstPass = false;
+	}
 
 	if(currentStep == 0)
 	{
