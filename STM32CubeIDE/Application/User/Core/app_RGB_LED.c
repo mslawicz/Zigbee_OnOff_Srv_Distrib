@@ -308,9 +308,9 @@ void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 				RGB_value[group][1] = targetValue;
 			}
 
-			currentValue.R = RGB_value[group][0].R + (RGB_value[group][1].R - RGB_value[group][0].R) * currentStep / noOfSteps;
-			currentValue.G = RGB_value[group][0].G + (RGB_value[group][1].G - RGB_value[group][0].G) * currentStep / noOfSteps;
-			currentValue.B = RGB_value[group][0].B + (RGB_value[group][1].B - RGB_value[group][0].B) * currentStep / noOfSteps;
+			currentValue.R = (uint8_t)(RGB_value[group][0].R + (float)(RGB_value[group][1].R - RGB_value[group][0].R) * currentStep / noOfSteps);
+			currentValue.G = (uint8_t)(RGB_value[group][0].G + (float)(RGB_value[group][1].G - RGB_value[group][0].G) * currentStep / noOfSteps);
+			currentValue.B = (uint8_t)(RGB_value[group][0].B + (float)(RGB_value[group][1].B - RGB_value[group][0].B) * currentStep / noOfSteps);
 			set_RGB_LEDs(groupIdx, GroupSize[group], currentValue, RGB_params.level);	//set all LEDs in the group
 		}
 		groupIdx += GroupSize[group];		//set start index of the next group
