@@ -201,6 +201,26 @@ void RGB_LED_action(struct ZbTimerT* tm)
 		RGB_cyclic_change(false, 6000);
 		period = CYCLE_PERIOD;
 		break;
+
+	case Mode_RandomGroupsFast:
+		RGB_random_change(true, 180);
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_RandomGroupsSlow:
+		RGB_random_change(true, 6000);
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_RandomAllFast:
+		RGB_random_change(false, 180);
+		period = CYCLE_PERIOD;
+		break;
+
+	case Mode_RandomAllSlow:
+		RGB_random_change(false, 6000);
+		period = CYCLE_PERIOD;
+		break;
 	}
 
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
@@ -255,7 +275,50 @@ void RGB_cyclic_change(bool use_groups, uint32_t noOfSteps)
 //noOfSteps: number of steps in a single change action
 void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 {
+	static struct RGB RGB_value[NO_OF_GROUPS][2];		//previous and next RGB values
+	static uint8_t activeGroup = 0;
+	static uint32_t currentStep = 0;
 
+	uint8_t group;
+	uint16_t groupIdx = 0;
+	struct RGB currentValue;
+	struct RGB targetValue;
+
+	if(currentStep == 0)
+	{
+		//set next target RGB value
+		targetValue.R = rand() % 0x100;
+		targetValue.G = rand() % 0x100;
+		targetValue.B = rand() % 0x100;
+		do
+		{
+			group = rand() % NO_OF_GROUPS;
+		} while((NO_OF_GROUPS > 1) && (group == activeGroup));
+		activeGroup = group;
+	}
+
+	for(group = 0; group < NO_OF_GROUPS; group++)
+	{
+
+		if(!use_groups || (group == activeGroup))
+		{
+			if(currentStep == 0)
+			{
+				RGB_value[group][0] = RGB_value[group][1];
+				RGB_value[group][1] = targetValue;
+			}
+
+			currentValue.R = RGB_value[group][0].R + (RGB_value[group][1].R - RGB_value[group][0].R) * currentStep / noOfSteps;
+			currentValue.G = RGB_value[group][0].G + (RGB_value[group][1].G - RGB_value[group][0].G) * currentStep / noOfSteps;
+			currentValue.B = RGB_value[group][0].B + (RGB_value[group][1].B - RGB_value[group][0].B) * currentStep / noOfSteps;
+			set_RGB_LEDs(groupIdx, GroupSize[group], currentValue, RGB_params.level);	//set all LEDs in the group
+		}
+		groupIdx += GroupSize[group];		//set start index of the next group
+	}
 
 	send_RGB_data(RGB_LED_htim, RGB_LED_Channel);	//send data to RGB LED units
+	if(++currentStep >= noOfSteps)
+	{
+		currentStep = 0;
+	}
 }

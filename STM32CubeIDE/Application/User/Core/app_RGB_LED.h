@@ -25,6 +25,10 @@ enum RGB_mode_t
 	Mode_CyclingGroupsSlow,
 	Mode_CyclingAllFast,
 	Mode_CyclingAllSlow,
+	Mode_RandomGroupsFast,
+	Mode_RandomGroupsSlow,
+	Mode_RandomAllFast,
+	Mode_RandomAllSlow,
 	No_Of_Modes
 };
 
