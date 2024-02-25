@@ -47,6 +47,7 @@ void set_RGB_bits(uint16_t LED, struct RGB value, uint8_t level);
 HAL_StatusTypeDef send_RGB_data(TIM_HandleTypeDef* htim, uint32_t Channel);
 void RGB_cyclic_change(bool use_groups, uint32_t cycles);
 void RGB_random_change(bool use_groups, uint32_t cycles);
+void getNewRGB(struct RGB* pValue);
 
 //convert color data from xy space to RGB value
 void convert_xy_to_RGB(uint16_t x, uint16_t y, struct RGB* pRGB)
@@ -270,6 +271,32 @@ void RGB_cyclic_change(bool use_groups, uint32_t noOfSteps)
 	step = (step + 1) % noOfSteps;		//next cycle step in the next function call
 }
 
+//generates new RGB values several times and returns the most color-saturated one
+void getNewRGB(struct RGB* pValue)
+{
+	struct RGB newRGB;
+	uint8_t testNr;
+	uint8_t min, max, span;
+	uint8_t spanMax = 0;
+
+	for(testNr = 0; testNr < 10; testNr++)
+	{
+		newRGB.R = rand() % 0x100;
+		newRGB.G = rand() % 0x100;
+		newRGB.B = rand() % 0x100;
+		min = (newRGB.R < newRGB.G) ? newRGB.R :  newRGB.G;
+		min = (min < newRGB.B) ? min :  newRGB.B;
+		max = (newRGB.R > newRGB.G) ? newRGB.R :  newRGB.G;
+		max = (max > newRGB.B) ? max :  newRGB.B;
+		span = max - min;
+		if(span > spanMax)
+		{
+			spanMax = span;
+			*pValue = newRGB;
+		}
+	}
+}
+
 //mode of randomly changing colors in groups
 //use_groups: different colors in groups (true) or the same color for all groups (false)
 //noOfSteps: number of steps in a single change action
@@ -302,9 +329,7 @@ void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 	if(currentStep == 0)
 	{
 		//set next target RGB value
-		targetValue.R = rand() % 0x100;
-		targetValue.G = rand() % 0x100;
-		targetValue.B = rand() % 0x100;
+		getNewRGB(&targetValue);
 		do
 		{
 			group = rand() % NO_OF_GROUPS;
