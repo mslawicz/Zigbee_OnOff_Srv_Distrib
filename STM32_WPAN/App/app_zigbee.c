@@ -89,6 +89,9 @@ static void APP_ZIGBEE_ProcessRequestM0ToM4(void);
 static void APP_ZIGBEE_ConfigGroupAddr(void);
 static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg);
 static void RGB_timer_callback(struct ZigBeeT* zb, void* arg);
+enum ZclStatusCodeT test_cbk(struct ZbZclClusterT *cluster, struct ZbZclAttrCbInfoT *info);	//XXX test
+    /**< If flags ZCL_ATTR_FLAG_CB_READ or ZCL_ATTR_FLAG_CB_WRITE are set, then
+     * this callback is called for attribute read or write commands. */
 /* USER CODE END PFP */
 
 /* Private variables ---------------------------------------------------------*/
@@ -619,7 +622,7 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 	},
 	{
 	ZCL_LEVEL_ATTR_STARTUP_CURRLEVEL, ZCL_DATATYPE_UNSIGNED_8BIT,
-	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	ZCL_ATTR_FLAG_WRITABLE | ZCL_ATTR_FLAG_PERSISTABLE | ZCL_ATTR_FLAG_CB_READ | ZCL_ATTR_FLAG_CB_WRITE, 0, test_cbk, {0, 0}, {0, 0}
 	}
   };
   ZbZclAttrAppendList( zigbee_app_info.levelControl_server_1, levelControl_attr_list, ZCL_ATTR_LIST_LEN(levelControl_attr_list));
@@ -1098,6 +1101,11 @@ static void APP_ZIGBEE_JoinReq(struct ZigBeeT* zb, void* arg)
 static void RGB_timer_callback(struct ZigBeeT* zb, void* arg)
 {
 	RGB_LED_action(appTimer);
+}
+
+enum ZclStatusCodeT test_cbk(struct ZbZclClusterT *cluster, struct ZbZclAttrCbInfoT *info)		//XXX test
+{
+	APP_DBG("!!! test_cbk !!!");
 }
 
 /* USER CODE END FD_LOCAL_FUNCTIONS */
