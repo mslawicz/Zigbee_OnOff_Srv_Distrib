@@ -344,8 +344,9 @@ static enum ZclStatusCodeT colorControl_server_1_stop_move_step(struct ZbZclClus
 static enum ZclStatusCodeT colorControl_server_1_move_color_temp(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveColorTempReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 9 ColorControl server 1 move_color_temp 1 */
-  return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 9 ColorControl server 1 move_color_temp 1 */
+	  APP_DBG("colorControl_server_1_move_color_temp");
+	  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 9 LevelControl server 1 move_to_level 1 */
 }
 
 /* ColorControl server step_color_temp 1 command callback */
@@ -555,6 +556,9 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
      *          .enhanced_supported     //bool
      */
     /* USER CODE BEGIN Color Server Config (endpoint1) */
+	.capabilities = ZCL_COLOR_CAP_XY |
+						ZCL_COLOR_CAP_COLOR_TEMP |
+						ZCL_COLOR_CAP_COLOR_LOOP
     /* USER CODE END Color Server Config (endpoint1) */
   };
   zigbee_app_info.colorControl_server_1 = ZbZclColorServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, NULL, 0, &colorServerConfig_1, NULL);
@@ -696,7 +700,7 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
       /* USER CODE BEGIN 15 */
-
+      BSP_LED_On(LED_BLUE);
       /* USER CODE END 15 */
     }
     else
