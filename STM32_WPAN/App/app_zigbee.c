@@ -35,6 +35,9 @@
 /* Private includes -----------------------------------------------------------*/
 #include <assert.h>
 #include "zcl/zcl.h"
+#include "zcl/general/zcl.identify.h"
+#include "zcl/general/zcl.groups.h"
+#include "zcl/general/zcl.scenes.h"
 #include "zcl/general/zcl.onoff.h"
 #include "zcl/general/zcl.color.h"
 #include "zcl/general/zcl.level.h"
@@ -52,6 +55,11 @@
 #define CHANNEL                                     11
 
 #define SW1_ENDPOINT                                17
+
+/* Scenes (endpoint 1) specific defines ------------------------------------------------*/
+#define ZCL_SCENES_MAX_SCENES_1                      20
+/* USER CODE BEGIN Scenes (endpoint 1) defines */
+/* USER CODE END Scenes (endpoint 1) defines */
 
 /* USER CODE BEGIN PD */
 #define SW1_GROUP_ADDR                              0x0001
@@ -112,6 +120,9 @@ struct zigbee_app_info
   uint32_t join_delay;
   bool init_after_join;
 
+  struct ZbZclClusterT *identify_server_1;
+  struct ZbZclClusterT *groups_server_1;
+  struct ZbZclClusterT *scenes_server_1;
   struct ZbZclClusterT *onOff_server_1;
   struct ZbZclClusterT *colorControl_server_1;
   struct ZbZclClusterT *levelControl_server_1;
@@ -333,9 +344,8 @@ static enum ZclStatusCodeT colorControl_server_1_stop_move_step(struct ZbZclClus
 static enum ZclStatusCodeT colorControl_server_1_move_color_temp(struct ZbZclClusterT *cluster, struct ZbZclColorClientMoveColorTempReqT *req, struct ZbZclAddrInfoT *srcInfo, void *arg)
 {
   /* USER CODE BEGIN 9 ColorControl server 1 move_color_temp 1 */
-	  APP_DBG("colorControl_server_1_move_color_temp");
-	  return ZCL_STATUS_SUCCESS;
-  /* USER CODE END 22 LevelControl server 1 move_to_level 1 */
+  return ZCL_STATUS_SUCCESS;
+  /* USER CODE END 9 ColorControl server 1 move_color_temp 1 */
 }
 
 /* ColorControl server step_color_temp 1 command callback */
@@ -521,6 +531,18 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclAddEndpoint(zigbee_app_info.zb, &req, &conf);
   assert(conf.status == ZB_STATUS_SUCCESS);
 
+  /* Identify server */
+  zigbee_app_info.identify_server_1 = ZbZclIdentifyServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, NULL);
+  assert(zigbee_app_info.identify_server_1 != NULL);
+  ZbZclClusterEndpointRegister(zigbee_app_info.identify_server_1);
+  /* Groups server */
+  zigbee_app_info.groups_server_1 = ZbZclGroupsServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT);
+  assert(zigbee_app_info.groups_server_1 != NULL);
+  ZbZclClusterEndpointRegister(zigbee_app_info.groups_server_1);
+  /* Scenes server */
+  zigbee_app_info.scenes_server_1 = ZbZclScenesServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, ZCL_SCENES_MAX_SCENES_1);
+  assert(zigbee_app_info.scenes_server_1 != NULL);
+  ZbZclClusterEndpointRegister(zigbee_app_info.scenes_server_1);
   /* OnOff server */
   zigbee_app_info.onOff_server_1 = ZbZclOnOffServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, &OnOffServerCallbacks_1, NULL);
   assert(zigbee_app_info.onOff_server_1 != NULL);
@@ -533,9 +555,6 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
      *          .enhanced_supported     //bool
      */
     /* USER CODE BEGIN Color Server Config (endpoint1) */
-	.capabilities = ZCL_COLOR_CAP_XY |
-						ZCL_COLOR_CAP_COLOR_TEMP |
-						ZCL_COLOR_CAP_COLOR_LOOP
     /* USER CODE END Color Server Config (endpoint1) */
   };
   zigbee_app_info.colorControl_server_1 = ZbZclColorServerAlloc(zigbee_app_info.zb, SW1_ENDPOINT, zigbee_app_info.onOff_server_1, NULL, 0, &colorServerConfig_1, NULL);
@@ -676,9 +695,9 @@ static void APP_ZIGBEE_NwkForm(void)
       zigbee_app_info.join_delay = 0U;
       zigbee_app_info.init_after_join = true;
       APP_DBG("Startup done !\n");
-      /* USER CODE BEGIN 30 */
-      BSP_LED_On(LED_BLUE);
-      /* USER CODE END 30 */
+      /* USER CODE BEGIN 15 */
+
+      /* USER CODE END 15 */
     }
     else
     {
@@ -869,6 +888,9 @@ static void APP_ZIGBEE_CheckWirelessFirmwareInfo(void)
     APP_DBG("Link Key value: %s", Z09_LL_string);
     /* print clusters allocated */
     APP_DBG("Clusters allocated are:");
+    APP_DBG("identify Server on Endpoint %d", SW1_ENDPOINT);
+    APP_DBG("groups Server on Endpoint %d", SW1_ENDPOINT);
+    APP_DBG("scenes Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("onOff Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("colorControl Server on Endpoint %d", SW1_ENDPOINT);
     APP_DBG("levelControl Server on Endpoint %d", SW1_ENDPOINT);
