@@ -592,6 +592,36 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
   ZbZclAttrAppendList( zigbee_app_info.groups_server_1, groupsControl_attr_list, ZCL_ATTR_LIST_LEN(groupsControl_attr_list));
   (void)ZbZclAttrIntegerWrite( zigbee_app_info.groups_server_1, ZCL_GROUPS_ATTR_NAME_SUPPORT, 0);
 
+  static const struct ZbZclAttrT scenesControl_attr_list[] =		/* MS add optional attributes of scenes cluster */
+  {
+	{
+	ZCL_SCENES_ATTR_SCENE_COUNT, ZCL_DATATYPE_UNSIGNED_8BIT,
+	ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_SCENES_ATTR_CURRENT_SCENE, ZCL_DATATYPE_UNSIGNED_8BIT,
+	ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_SCENES_ATTR_CURRENT_GROUP, ZCL_DATATYPE_UNSIGNED_16BIT,
+	ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_SCENES_ATTR_SCENE_VALID, ZCL_DATATYPE_BOOLEAN,
+	ZCL_ATTR_FLAG_REPORTABLE, 0, NULL, {0, 0}, {0, 0}
+	},
+	{
+	ZCL_SCENES_ATTR_NAME_SUPPORT, ZCL_DATATYPE_BITMAP_8BIT,
+	ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	}
+  };
+  ZbZclAttrAppendList( zigbee_app_info.scenes_server_1, scenesControl_attr_list, ZCL_ATTR_LIST_LEN(scenesControl_attr_list));
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.scenes_server_1, ZCL_SCENES_ATTR_SCENE_COUNT, 0);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.scenes_server_1, ZCL_SCENES_ATTR_CURRENT_SCENE, 0);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.scenes_server_1, ZCL_SCENES_ATTR_CURRENT_GROUP, 0);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.scenes_server_1, ZCL_SCENES_ATTR_SCENE_VALID, 0);
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.scenes_server_1, ZCL_SCENES_ATTR_NAME_SUPPORT, 0);
+
   static const struct ZbZclAttrT colorControl_attr_list[] =		/* MS add optional attributes of color control cluster */
   {
 	{
