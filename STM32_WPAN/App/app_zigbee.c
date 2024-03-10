@@ -43,6 +43,7 @@
 #include "zcl/general/zcl.level.h"
 
 /* USER CODE BEGIN Includes */
+#include "zcl/general/zcl.basic.h"
 #include "app_RGB_LED.h"
 /* USER CODE END Includes */
 
@@ -571,6 +572,25 @@ static void APP_ZIGBEE_ConfigEndpoints(void)
 
   /* USER CODE BEGIN CONFIG_ENDPOINT */
   APP_DBG("adding cluster attributes");
+
+  static const struct ZbZclAttrT identifyControl_attr_list[] =		/* MS add optional attributes of identify cluster */
+  {
+	{
+	ZCL_IDENTIFY_ATTR_TIME, ZCL_DATATYPE_UNSIGNED_16BIT,
+	ZCL_ATTR_FLAG_WRITABLE, 0, NULL, {0, 0}, {0, 0}
+	}
+  };
+  ZbZclAttrAppendList( zigbee_app_info.identify_server_1, identifyControl_attr_list, ZCL_ATTR_LIST_LEN(identifyControl_attr_list));
+
+  static const struct ZbZclAttrT groupsControl_attr_list[] =		/* MS add optional attributes of groups cluster */
+  {
+	{
+	ZCL_GROUPS_ATTR_NAME_SUPPORT, ZCL_DATATYPE_BITMAP_8BIT,
+	ZCL_ATTR_FLAG_REPORTABLE | ZCL_ATTR_FLAG_PERSISTABLE, 0, NULL, {0, 0}, {0, 0}
+	}
+  };
+  ZbZclAttrAppendList( zigbee_app_info.groups_server_1, groupsControl_attr_list, ZCL_ATTR_LIST_LEN(groupsControl_attr_list));
+  (void)ZbZclAttrIntegerWrite( zigbee_app_info.groups_server_1, ZCL_GROUPS_ATTR_NAME_SUPPORT, 0);
 
   static const struct ZbZclAttrT colorControl_attr_list[] =		/* MS add optional attributes of color control cluster */
   {
