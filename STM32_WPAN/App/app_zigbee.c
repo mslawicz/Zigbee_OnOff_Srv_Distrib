@@ -376,7 +376,7 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 	  if (endpoint == SW1_ENDPOINT)
 	  {
 		RGB_params.level = req->level;
-		APP_DBG("levelControl_server_1_move_to_level (level=%d)", RGB_params.level);
+		APP_DBG("levelControl_server_1_move_to_level (level=%d, time=%d)", RGB_params.level, req->transition_time);
 		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, RGB_params.level);
 
 		// send data to LEDs if the device is on
