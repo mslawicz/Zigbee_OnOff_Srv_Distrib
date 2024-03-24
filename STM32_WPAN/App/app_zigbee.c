@@ -228,7 +228,7 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
     if(RGB_params.OnOff == 0)
     {
     	RGB_params.OnOff = 1;
-    	ActionWrapper();
+    	ZbTimerReset(appTimer, RGB_CYCLE_PERIOD);
     }
   }
   else 
@@ -279,7 +279,7 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_xy(struct ZbZclCl
 	if(RGB_params.OnOff != 0)
 	{
 		RGB_params.mode = Mode_Static;
-		ActionWrapper();
+		ZbTimerReset(appTimer, RGB_CYCLE_PERIOD);
 	}
 
   return ZCL_STATUS_SUCCESS;
@@ -312,7 +312,7 @@ static enum ZclStatusCodeT colorControl_server_1_move_to_color_temp(struct ZbZcl
 	if((req->color_temp >= ATTR_COLOR_TEMP_BEGIN) && (req->color_temp < ATTR_COLOR_TEMP_BEGIN + No_Of_Modes))
 	{
 		RGB_params.mode = (req->color_temp - ATTR_COLOR_TEMP_BEGIN);
-		ActionWrapper();
+		ZbTimerReset(appTimer, RGB_CYCLE_PERIOD);
 	}
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_COLOR_TEMP_MIREDS,req->color_temp);
 	(void)ZbZclAttrIntegerWrite(cluster, ZCL_COLOR_ATTR_REMAINING_TIME, req->transition_time);
@@ -396,7 +396,7 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 		RGB_params.cluster = cluster;
 		RGB_params.srcInfo = srcInfo;
 		RGB_params.arg = arg;
-		ActionWrapper();
+		ZbTimerReset(appTimer, RGB_CYCLE_PERIOD);
 	  }
 	  else
 	  {
