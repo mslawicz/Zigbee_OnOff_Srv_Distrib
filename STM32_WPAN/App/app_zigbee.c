@@ -367,7 +367,6 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
   /* USER CODE BEGIN 11 LevelControl server 1 move_to_level 1 */
 	  uint8_t attrVal;
 	  uint8_t endpoint;
-	  uint8_t onOffVal;
 
 	  if (ZbZclAttrRead(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, NULL, &attrVal, sizeof(attrVal), false) != ZCL_STATUS_SUCCESS)
 	  {
@@ -379,6 +378,25 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 	  {
 		RGB_params.targetLevel = req->level;
 		APP_DBG("levelControl_server_1_move_to_level (level=%d, time=%d)", RGB_params.targetLevel, req->transition_time);
+
+		RGB_params.transitionSteps = 0;
+		if(req->transition_time == 0)
+		{
+			RGB_params.currentLevel = RGB_params.targetLevel;
+		}
+		else if(RGB_params.currentLevel != RGB_params.targetLevel)
+		{
+			/* calculate number of steps to reach the target level */
+			RGB_params.transitionSteps = req->transition_time * 1000 / RGB_CYCLE_PERIOD / 10;
+			if(RGB_params.transitionSteps == 0)
+			{
+				RGB_params.transitionSteps = 1;
+			}
+		}
+
+		RGB_LED_action(appTimer);
+
+		/* TODO remove it later
 		(void)ZbZclAttrIntegerWrite(cluster, ZCL_LEVEL_ATTR_CURRLEVEL, RGB_params.targetLevel);
 
 		// send data to LEDs if the device is on
@@ -404,6 +422,8 @@ static enum ZclStatusCodeT levelControl_server_1_move_to_level(struct ZbZclClust
 				onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);
 			}
 		}
+		*/
+
 	  }
 	  else
 	  {

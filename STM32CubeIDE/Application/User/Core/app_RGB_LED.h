@@ -39,6 +39,7 @@ struct RGB_Params_t
 	uint8_t OnOff;
 	uint8_t currentLevel;
 	uint8_t targetLevel;
+	uint32_t transitionSteps;
 	struct RGB color;
 	enum RGB_mode_t mode;
 };

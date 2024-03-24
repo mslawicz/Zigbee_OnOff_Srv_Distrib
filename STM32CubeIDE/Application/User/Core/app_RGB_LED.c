@@ -24,8 +24,9 @@ uint16_t RGB_bits[NO_OF_BITS];
 struct RGB_Params_t RGB_params =
 {
 		.OnOff = 0,
-		.currentLevel=0,
+		.currentLevel=RGB_INIT_LEVEL,
 		.targetLevel = RGB_INIT_LEVEL,
+		.transitionSteps = 0,
 		.color = { 255, 255, 255 },
 		.mode = Mode_Static
 };
@@ -174,13 +175,24 @@ void RGB_LED_action(struct ZbTimerT* tm)
 {
 	unsigned int period = 0;
 
+	BSP_LED_Toggle(LED_GREEN);		//XXX test
+
+	if(RGB_params.transitionSteps > 0)
+	{
+		RGB_params.currentLevel += ((int)RGB_params.targetLevel - (int)RGB_params.currentLevel) / (int)RGB_params.transitionSteps;
+		RGB_params.transitionSteps--;
+	}
+
 	switch(RGB_params.mode)
 	{
 	case Mode_Static:
 	default:
-		BSP_LED_Toggle(LED_GREEN);		//XXX test
 		set_RGB_LEDs(0, NO_OF_LEDS, RGB_params.color, RGB_params.currentLevel);	//set all LEDs to current global color and level
-		period = 0;	//one-shot action
+		//call it periodically until level transition is needed
+		if(RGB_params.transitionSteps != 0)
+		{
+			period = RGB_CYCLE_PERIOD;
+		}
 		break;
 
 	case Mode_CyclingGroupsFast:
