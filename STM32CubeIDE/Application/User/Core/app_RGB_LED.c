@@ -28,7 +28,10 @@ struct RGB_Params_t RGB_params =
 		.targetLevel = RGB_INIT_LEVEL,
 		.transitionSteps = 0,
 		.color = { 255, 255, 255 },
-		.mode = Mode_Static
+		.mode = Mode_Static,
+		.cluster = NULL,
+		.srcInfo = NULL,
+		.arg = NULL
 };
 
 static const uint16_t GroupSize[NO_OF_GROUPS] = { 1,1,1,1,1,1,1,1 };

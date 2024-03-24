@@ -41,7 +41,10 @@ struct RGB_Params_t
 	uint8_t targetLevel;
 	uint32_t transitionSteps;
 	struct RGB color;
+	struct ZbZclClusterT* cluster;
 	enum RGB_mode_t mode;
+	struct ZbZclAddrInfoT* srcInfo;
+	void* arg;
 };
 
 extern TIM_HandleTypeDef* RGB_LED_htim;
