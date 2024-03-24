@@ -16,7 +16,6 @@
 #define BIT_1_DUTY	27		// 27/40 * 1.25 us = 812 ns
 #define BIT_0_DUTY	13		// 13/40 * 1.25 us = 375 ns
 #define RGB_INIT_LEVEL	20
-#define CYCLE_PERIOD	20		//milliseconds
 
 TIM_HandleTypeDef* RGB_LED_htim = NULL;
 uint32_t RGB_LED_Channel;
@@ -25,7 +24,8 @@ uint16_t RGB_bits[NO_OF_BITS];
 struct RGB_Params_t RGB_params =
 {
 		.OnOff = 0,
-		.level = RGB_INIT_LEVEL,
+		.currentLevel=0,
+		.targetLevel = RGB_INIT_LEVEL,
 		.color = { 255, 255, 255 },
 		.mode = Mode_Static
 };
@@ -119,7 +119,7 @@ float gamma_correction(float val2correct)
 //adjust color value to the desired level
 uint8_t apply_level(uint8_t value, uint8_t level)
 {
-	return value * level / 255;	//TODO change to non-linear transformation
+	return value * level / 255;
 }
 
 //set RGB LED PWM pulse data to the array
@@ -179,48 +179,48 @@ void RGB_LED_action(struct ZbTimerT* tm)
 	case Mode_Static:
 	default:
 		BSP_LED_Toggle(LED_GREEN);		//XXX test
-		set_RGB_LEDs(0, NO_OF_LEDS, RGB_params.color, RGB_params.level);	//set all LEDs to current global color and level
+		set_RGB_LEDs(0, NO_OF_LEDS, RGB_params.color, RGB_params.currentLevel);	//set all LEDs to current global color and level
 		period = 0;	//one-shot action
 		break;
 
 	case Mode_CyclingGroupsFast:
 		RGB_cyclic_change(true, 120);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_CyclingGroupsSlow:
 		RGB_cyclic_change(true, 3000);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_CyclingAllFast:
 		RGB_cyclic_change(false, 500);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_CyclingAllSlow:
 		RGB_cyclic_change(false, 6000);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_RandomGroupsFast:
 		RGB_random_change(true, 180);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_RandomGroupsSlow:
 		RGB_random_change(true, 6000);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_RandomAllFast:
 		RGB_random_change(false, 180);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 
 	case Mode_RandomAllSlow:
 		RGB_random_change(false, 6000);
-		period = CYCLE_PERIOD;
+		period = RGB_CYCLE_PERIOD;
 		break;
 	}
 
@@ -263,7 +263,7 @@ void RGB_cyclic_change(bool use_groups, uint32_t noOfSteps)
 		RGB_value.R = ColorPattern[lowerIdx][0] + (int)((ColorPattern[lowerIdx + 1][0] - ColorPattern[lowerIdx][0]) * (patternPhase - lowerIdx));
 		RGB_value.G = ColorPattern[lowerIdx][1] + (int)((ColorPattern[lowerIdx + 1][1] - ColorPattern[lowerIdx][1]) * (patternPhase - lowerIdx));
 		RGB_value.B = ColorPattern[lowerIdx][2] + (int)((ColorPattern[lowerIdx + 1][2] - ColorPattern[lowerIdx][2]) * (patternPhase - lowerIdx));
-		set_RGB_LEDs(groupIdx, GroupSize[group], RGB_value, RGB_params.level);	//set all LEDs in the group
+		set_RGB_LEDs(groupIdx, GroupSize[group], RGB_value, RGB_params.currentLevel);	//set all LEDs in the group
 		groupIdx += GroupSize[group];		//set start index of the next group
 	}
 
@@ -322,7 +322,7 @@ void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 		{
 			RGB_value[group][1] = RGB_value[group][0] = targetValue;
 		}
-		set_RGB_LEDs(0, NO_OF_LEDS, targetValue, RGB_params.level);	//set all LEDs to random value
+		set_RGB_LEDs(0, NO_OF_LEDS, targetValue, RGB_params.currentLevel);	//set all LEDs to random value
 		firstPass = false;
 	}
 
@@ -351,7 +351,7 @@ void RGB_random_change(bool use_groups, uint32_t noOfSteps)
 			currentValue.R = (uint8_t)((int)RGB_value[group][0].R + ((int)RGB_value[group][1].R - (int)RGB_value[group][0].R) * (int)currentStep / (int)noOfSteps);
 			currentValue.G = (uint8_t)((int)RGB_value[group][0].G + ((int)RGB_value[group][1].G - (int)RGB_value[group][0].G) * (int)currentStep / (int)noOfSteps);
 			currentValue.B = (uint8_t)((int)RGB_value[group][0].B + ((int)RGB_value[group][1].B - (int)RGB_value[group][0].B) * (int)currentStep / (int)noOfSteps);
-			set_RGB_LEDs(groupIdx, GroupSize[group], currentValue, RGB_params.level);	//set all LEDs in the group
+			set_RGB_LEDs(groupIdx, GroupSize[group], currentValue, RGB_params.currentLevel);	//set all LEDs in the group
 		}
 		groupIdx += GroupSize[group];		//set start index of the next group
 	}

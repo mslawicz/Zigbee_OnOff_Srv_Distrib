@@ -11,6 +11,8 @@
 #include "stm32wbxx_hal.h"
 #include "zigbee_interface.h"
 
+#define RGB_CYCLE_PERIOD	20		//milliseconds
+
 struct RGB
 {
 	uint8_t R;
@@ -35,7 +37,8 @@ enum RGB_mode_t
 struct RGB_Params_t
 {
 	uint8_t OnOff;
-	uint8_t level;
+	uint8_t currentLevel;
+	uint8_t targetLevel;
 	struct RGB color;
 	enum RGB_mode_t mode;
 };
