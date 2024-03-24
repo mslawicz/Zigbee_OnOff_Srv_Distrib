@@ -196,7 +196,6 @@ static enum ZclStatusCodeT onOff_server_1_off(struct ZbZclClusterT *cluster, str
   {
     APP_DBG("onOff_server_1_off");
     BSP_LED_Off(LED_RED);
-    //TODO change to on/off with fading in/out request
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 0);
     if(RGB_params.OnOff != 0)
     {
@@ -225,7 +224,6 @@ static enum ZclStatusCodeT onOff_server_1_on(struct ZbZclClusterT *cluster, stru
   {
     APP_DBG("onOff_server_1_on");
     BSP_LED_On(LED_RED);
-    //TODO change to on/off with fading in/out request
     (void)ZbZclAttrIntegerWrite(cluster, ZCL_ONOFF_ATTR_ONOFF, 1);
     if(RGB_params.OnOff == 0)
     {
@@ -1194,26 +1192,6 @@ static void ActionWrapper()
 		APP_DBG("ActionWrapper calling onOff_server_1_on ");
 		onOff_server_1_on(zigbee_app_info.onOff_server_1, RGB_params.srcInfo, RGB_params.arg);
 	}
-
-/* XXX old code
-	enum ZclDataTypeT* typePtr = NULL;
-	enum ZclStatusCodeT* statusPtr = NULL;;
-	onOffVal = ZbZclAttrIntegerRead(zigbee_app_info.onOff_server_1, ZCL_ONOFF_ATTR_ONOFF, typePtr, statusPtr);
-	if((req->with_onoff) && (*statusPtr == ZCL_STATUS_SUCCESS))
-	{
-		//on/off action must be executed
-		if((RGB_params.targetLevel <= 1) && (onOffVal != 0))
-		{
-			APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_off ");
-			onOff_server_1_off(zigbee_app_info.onOff_server_1, srcInfo, arg);
-		}
-		if((RGB_params.targetLevel > 1) && (onOffVal == 0))
-		{
-			APP_DBG("levelControl_server_1_move_to_level calling onOff_server_1_on ");
-			onOff_server_1_on(zigbee_app_info.onOff_server_1, srcInfo, arg);
-		}
-	}
-*/
 }
 
 static void RGB_timer_callback(struct ZigBeeT* zb, void* arg)
